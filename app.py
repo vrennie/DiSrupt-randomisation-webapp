@@ -1,4 +1,4 @@
-"""DiSrupT geographic randomisation demonstration, not an allocation service."""
+"""DiSrupT geographic randomisation visualisation — demonstration only."""
 import json
 import secrets
 from datetime import datetime, timezone
@@ -7,92 +7,164 @@ from pathlib import Path
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="DiSrupT Randomisation", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="DiSrupT | Randomisation", page_icon="🎯", layout="wide")
 st.title("DiSrupT RR-TB | Geographic randomisation")
-st.caption("Demonstration only. Validate block boundaries and use an approved audited randomisation system for trial allocations.")
+st.caption("Illustrative site grouping traced from the two supplied block maps.")
+
+# Coordinates in the 540 x 574 pixel version of the supplied uncoloured map.
+# Sites were located using the pink facility dots, then assigned to one of the
+# two groups by their positions inside the highlighted block outlines.
+# Verify site membership against authoritative site and geographic records.
+SITES = {
+    "north_east": [
+        [512, 34], [262, 89], [279, 272], [296, 247], [413, 215],
+        [338, 195], [190, 167], [321, 339], [368, 152], [303, 239],
+        [417, 110], [163, 167], [345, 281], [399, 185], [152, 154],
+        [331, 221], [337, 313], [415, 53], [310, 289], [255, 251],
+        [313, 247], [380, 233], [394, 173], [160, 135], [328, 247],
+        [389, 230]
+    ],
+    "south_west": [
+        [141, 298], [137, 394], [165, 447], [124, 238], [79, 496],
+        [232, 304], [251, 463], [74, 316], [175, 481], [157, 323],
+        [119, 428], [141, 500], [151, 494], [266, 341], [133, 488]
+    ]
+}
 
 if "assignment" not in st.session_state:
     st.session_state.assignment = None
 
-if st.button("🎯 RANDOMISE", type="primary", disabled=st.session_state.assignment is not None):
-    winner = "A" if secrets.randbelow(2) == 0 else "B"
-    st.session_state.assignment = {
-        "intervention": winner,
-        "control": "B" if winner == "A" else "A",
-        "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-    }
-    st.rerun()
-
-root = Path(__file__).resolve().parent
-map_path = root / "assets" / "kzn_map.webp"
-if map_path.exists():
-    import base64
-    background = "data:image/webp;base64," + base64.b64encode(map_path.read_bytes()).decode()
-else:
-    background = ""
-
-# Block polygons based on the outlines in the supplied coloured reference.
-# Coordinates use the 540 x 574 original image coordinate system.
-A = "M 412,12 L 518,31 L 516,158 L 507,188 L 477,224 L 455,239 L 430,271 L 405,289 L 374,301 L 346,330 L 319,345 L 307,349 L 314,326 L 310,309 L 294,285 L 274,269 L 254,253 L 240,230 L 222,211 L 200,192 L 178,191 L 163,178 L 150,161 L 139,133 L 137,105 L 146,97 L 175,99 L 218,91 L 252,92 L 275,93 L 306,95 L 349,95 L 378,84 L 396,69 L 407,48 Z"
-B = "M 103,172 L 124,179 L 142,200 L 160,217 L 173,233 L 176,259 L 186,280 L 200,277 L 222,267 L 240,260 L 259,265 L 272,285 L 279,309 L 274,340 L 263,356 L 249,374 L 231,383 L 229,410 L 236,433 L 258,454 L 258,478 L 225,510 L 207,529 L 174,553 L 169,559 L 143,550 L 116,538 L 90,533 L 68,522 L 42,503 L 19,484 L 15,459 L 15,426 L 21,398 L 23,391 L 46,392 L 60,370 L 69,346 L 69,334 L 43,297 L 16,283 L -4,270 L -4,245 L 9,232 L 33,221 L 59,214 L 76,204 L 95,182 Z"
-cfg = json.dumps({
-    "winner": st.session_state.assignment["intervention"] if st.session_state.assignment else None,
-    "background": background, "A": A, "B": B
-})
-page = """
-<!DOCTYPE html><html><head><meta charset='utf-8'>
+st.markdown("""
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;color:#183144}
-.panel{display:flex;align-items:center;justify-content:center;gap:24px;background:#fff;border:1px solid #e1e8ed;border-radius:18px;padding:15px}
-svg{max-height:640px;width:min(70vw,540px);height:auto}
-.block{fill:#db6a9e;fill-opacity:0;stroke:#0b3341;stroke-width:2;stroke-opacity:.7;transition:fill-opacity .12s}
-.legend{min-width:175px}.legend article{padding:14px;margin:10px 0;border:1px solid #dae5e9;border-radius:12px}
-.legend strong{display:block}.legend span{font-size:13px}.status{text-align:center;font-weight:700;color:#416374}
-@media(max-width:640px){.panel{flex-direction:column;gap:0}svg{width:100%}.legend{display:flex;gap:8px}.legend article{flex:1}}
+.block-container {max-width: 1110px; padding-top: 2rem;}
+.stApp {background-color: #f8fafb;}
+div.stButton > button[kind="primary"] {
+    background: #116c7b; color: white; border-radius: 12px;
+    padding: .8rem 1.5rem; font-weight: 750;
+}
+</style>
+""", unsafe_allow_html=True)
+
+left, right = st.columns([1, 2], vertical_alignment="bottom")
+with left:
+    locked = st.session_state.assignment is not None
+    if st.button("🎯 RANDOMISE", type="primary", use_container_width=True, disabled=locked):
+        # The 50:50 result is drawn exactly once before the visual animation.
+        selected = "north_east" if secrets.randbelow(2) == 0 else "south_west"
+        st.session_state.assignment = {
+            "intervention": selected,
+            "control": "south_west" if selected == "north_east" else "north_east",
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+        }
+        st.rerun()
+    if locked and st.button("Reset demonstration", use_container_width=True):
+        st.session_state.assignment = None
+        st.rerun()
+    st.caption("50:50 random draw. Animation does not determine the outcome.")
+with right:
+    st.write("Site dots alternate between **green** and **blue**—fast at first, then slower—before intervention (green) and control (blue) are revealed.")
+
+map_b64_path = Path(__file__).parent / "assets" / "kzn_map.b64"
+background = (
+    "data:image/webp;base64," + map_b64_path.read_text(encoding="ascii").strip()
+    if map_b64_path.exists() else ""
+)
+
+config = json.dumps({
+    "winner": st.session_state.assignment["intervention"] if st.session_state.assignment else None,
+    "background": background,
+    "sites": SITES,
+})
+page = r"""
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,sans-serif;color:#183144}
+.panel{border:1px solid #e0e8ed;border-radius:16px;background:white;padding:15px}
+.status{text-align:center;font-size:15px;font-weight:700;margin-bottom:10px;min-height:24px}
+.stage{display:flex;justify-content:center;align-items:center;gap:22px}
+.map{position:relative;flex:0 1 540px;aspect-ratio:540/574;max-width:540px;width:100%}
+.map img,.map svg{position:absolute;width:100%;height:100%;inset:0}
+.map img{object-fit:fill}
+.site{stroke:#fff;stroke-width:1.2;transition:fill .12s, r .12s}
+.site.selected{r:5.7;stroke-width:1.6}
+.legend{display:flex;flex-direction:column;gap:14px;min-width:180px}
+.legend article{padding:14px;border-radius:12px;border:1px solid #e0e7ed;background:#f7fafb}
+.legend strong{display:block;font-size:14px;margin-bottom:5px}
+.legend span{font-size:13px}
+.legend article.intervention{border-color:#22a579;background:#e9f8f3}
+.legend article.control{border-color:#609fc2;background:#edf6fc}
+@media(max-width:680px){.stage{flex-direction:column;gap:8px}.legend{flex-direction:row;min-width:0;width:100%}.legend article{flex:1;padding:10px}}
 </style></head><body>
-<div class='status' id='status'>Press RANDOMISE to select an allocation</div>
-<div class='panel'>
-<svg viewBox='0 0 540 574' aria-label='Map of two KwaZulu-Natal randomisation blocks'>
-<rect width='540' height='574' fill='#f9f8f5'/>
-<image id='mapimage' x='0' y='0' width='540' height='574' preserveAspectRatio='none'/>
-<path class='block' id='blockA'/><path class='block' id='blockB'/>
-</svg>
-<div class='legend'><article><strong>Block A</strong><span id='labelA'>North-eastern · unassigned</span></article>
-<article><strong>Block B</strong><span id='labelB'>South-western · unassigned</span></article></div>
+<div class="panel">
+  <div class="status" id="status">Press RANDOMISE to start</div>
+  <div class="stage">
+    <div class="map" aria-label="KwaZulu-Natal map with initiation sites highlighted by allocation group">
+      <img id="background" alt="KwaZulu-Natal district map with facility locations" />
+      <svg viewBox="0 0 540 574" preserveAspectRatio="none" id="dots"></svg>
+    </div>
+    <div class="legend">
+      <article id="cardNorth"><strong>Block A · North-east</strong><span id="labelNorth">Unassigned</span></article>
+      <article id="cardSouth"><strong>Block B · South-west</strong><span id="labelSouth">Unassigned</span></article>
+    </div>
+  </div>
 </div>
 <script>
-const c=CONFIG, paths=[document.getElementById('blockA'),document.getElementById('blockB')];
-paths[0].setAttribute('d',c.A);paths[1].setAttribute('d',c.B);
-if(c.background){document.getElementById('mapimage').setAttribute('href',c.background)}
-function highlight(i){paths.forEach((p,j)=>{p.style.fill='#dd589c';p.style.fillOpacity=i===j?'.7':'0'})}
-function finish(){
- const target=c.winner==='A'?0:1;
- paths.forEach((p,i)=>{p.style.fill=i===target?'#17ad7e':'#5a9fca';p.style.fillOpacity='.58'});
- document.getElementById('labelA').textContent='North-eastern · '+(target===0?'INTERVENTION':'CONTROL');
- document.getElementById('labelB').textContent='South-western · '+(target===1?'INTERVENTION':'CONTROL');
- document.getElementById('status').textContent='Allocation complete';
+const cfg=APP_CONFIG;
+const green="#16aa7c",blue="#589bc4";
+const svg=document.getElementById("dots");
+if(cfg.background){document.getElementById("background").src=cfg.background;}
+const makeSite=(p,group)=>{
+  const dot=document.createElementNS("http://www.w3.org/2000/svg","circle");
+  dot.setAttribute("cx",p[0]);dot.setAttribute("cy",p[1]);
+  dot.setAttribute("r",4.6);dot.setAttribute("class","site");
+  dot.dataset.group=group;svg.appendChild(dot);return dot;
+};
+const north=cfg.sites.north_east.map(p=>makeSite(p,"north"));
+const south=cfg.sites.south_west.map(p=>makeSite(p,"south"));
+function colour(northGreen,chosen){
+  for(const c of north){c.setAttribute("fill",northGreen?green:blue);c.setAttribute("class","site"+(chosen==="north"?" selected":""));}
+  for(const c of south){c.setAttribute("fill",northGreen?blue:green);c.setAttribute("class","site"+(chosen==="south"?" selected":""));}
 }
-if(c.winner){
- document.getElementById('status').textContent='Randomising…';
- const target=c.winner==='A'?0:1, count=23, first=(target-(count-1)%2+2)%2;
- let n=0;
- function tick(){
-   highlight((first+n)%2);
-   if(n===count-1){setTimeout(finish,750);return}
-   let t=n/(count-1);n++;
-   setTimeout(tick,65+Math.pow(t,2.35)*610);
- }
- setTimeout(tick,300);
+function finish(){
+  const northWins=cfg.winner==="north_east";
+  colour(northWins,northWins?"north":"south");
+  const ncard=document.getElementById("cardNorth"),scard=document.getElementById("cardSouth");
+  ncard.classList.add(northWins?"intervention":"control");
+  scard.classList.add(northWins?"control":"intervention");
+  document.getElementById("labelNorth").textContent=(northWins?"INTERVENTION":"CONTROL")+" · "+north.length+" sites";
+  document.getElementById("labelSouth").textContent=(northWins?"CONTROL":"INTERVENTION")+" · "+south.length+" sites";
+  document.getElementById("status").textContent="Allocation complete";
+}
+colour(true,null); // No pink highlighting at any stage
+if(cfg.winner){
+  document.getElementById("status").textContent="Randomising…";
+  const northWins=cfg.winner==="north_east";
+  const steps=23;let i=0;
+  // Odd number of steps ensures final highlighted group matches the draw.
+  const firstGreen=northWins;
+  function tick(){
+    const greenOnNorth=(i%2===0)?firstGreen:!firstGreen;
+    colour(greenOnNorth,greenOnNorth?"north":"south");
+    if(i===steps-1){setTimeout(finish,700);return;}
+    const progress=i/(steps-1);
+    const delay=65+620*Math.pow(progress,2.25);
+    i++;
+    setTimeout(tick,delay);
+  }
+  setTimeout(tick,280);
 }
 </script></body></html>
 """
-components.html(page.replace("CONFIG", cfg), height=745, scrolling=False)
+components.html(page.replace("APP_CONFIG", config), height=730, scrolling=False)
+
 if st.session_state.assignment:
-    result = st.session_state.assignment
-    st.success(f"Intervention: Block {result['intervention']} | Control: Block {result['control']}")
-    st.download_button("Download session allocation (JSON)", json.dumps(result, indent=2),
-                       file_name="disrupt-allocation.json", mime="application/json")
-    if st.button("Reset demonstration"):
-        del st.session_state.assignment
-        st.rerun()
-st.caption("Session state is temporary, not an auditable randomisation record. Do not use for clinical allocation.")
+    record = st.session_state.assignment
+    names = {"north_east": "Block A — North-east", "south_west": "Block B — South-west"}
+    st.success(
+        f"Intervention: {names[record['intervention']]}  |  Control: {names[record['control']]}"
+    )
+    st.download_button(
+        "Download session allocation (JSON)", data=json.dumps(record, indent=2),
+        file_name="disrupt-allocation.json", mime="application/json",
+    )
+st.caption("Visual prototype only: image-derived site groupings require validation, and allocations are not kept in a durable audit log.")
