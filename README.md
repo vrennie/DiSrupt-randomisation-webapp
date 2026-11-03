@@ -1,18 +1,36 @@
-# DiSrupT RR-TB geographic randomisation animation
+# DiSrupT RR-TB geographic randomisation map
 
-Streamlit demonstration of two geographic blocks alternating rapidly, slowing down, and stopping with one assigned Intervention and the other Control.
+Interactive Streamlit visualisation of a 50:50 random assignment between two predefined KwaZulu-Natal geographic groups.
 
-## Run
+## What happens
+
+1. Click **RANDOMISE**. Python uses `secrets.randbelow(2)` to pick the intervention group **before** the visual effect begins.
+2. The map's initiation-site dots (not entire polygons) alternate **green / blue** quickly at first and then progressively more slowly.
+3. The animation stops with the randomly selected group's dots **green = Intervention** and the other group's dots **blue = Control**.
+4. The session result is shown below the map and can be downloaded as JSON.
+
+The district boundaries and site locations remain visible using `assets/kzn_map.webp`, derived from the uncoloured reference image provided for this app.
+
+## Current demonstration groups
+
+- **Block A · North-east** — 26 image-detected initiation-site dots
+- **Block B · South-west** — 15 image-detected initiation-site dots
+
+Dots were located on the map and assigned to one of the two groups using the highlighted block regions in the supplied reference. These **image-based detections and group memberships are approximate**, not a validated authoritative site register. Please verify all site identities and their block memberships against the approved study list/GIS data before use.
+
+## Run locally
 
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-## Map artwork
+## Files
 
-The Streamlit app runs without additional image files using built-in vector block boundaries. To display the detailed map and facility markers beneath the selection animation, upload the supplied map background as `assets/kzn_map.webp` (540 × 574 pixels). This is optional; the block animation works either way. The vector outlines are illustrative approximations and must be validated against authoritative GIS boundaries before use.
+- `app.py` — Streamlit UI, secure draw, site groups, animation, and session record
+- `assets/kzn_map.webp` — reference district/facility background map
+- `requirements.txt` — Python packages
 
-## Important limitations
+## Important
 
-This repository provides a **visual prototype**, not an approved trial randomisation system. It makes a cryptographically secure 50:50 draw before the animation begins, but the assignment is only stored in the current Streamlit session. Operational use requires durable audit logs, authenticated access, allocation concealment, approved sequence-generation rules, and protection against duplicate allocations and reruns.
+This is a **visual prototype**, not a production clinical-trial randomisation system. The draw is 50:50 and generated before the animation, but Streamlit session state is not a durable allocation ledger. Operational trial use requires verified cluster assignments, preapproved allocation procedures, secure authentication, idempotence, audit logs, allocation concealment where required, and persistent storage.
