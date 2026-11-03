@@ -40,6 +40,7 @@ sites = get_sites()
 counts = {area: sum(site["area"] == area for site in sites) for area in ("A", "B", "non_study")}
 outline_svg = (ASSETS / "province_outline.svg").read_bytes()
 outline_b64 = base64.b64encode(outline_svg).decode("ascii")
+logo_b64 = base64.b64encode((ASSETS / "Disrupt_scissor_cut_v2.gif").read_bytes()).decode("ascii")
 # The province boundary is used as an always-filled blue base. Thus any area
 # not occupied by A or B is non-study, never a white/unclassified gap.
 import xml.etree.ElementTree as ET
@@ -60,21 +61,42 @@ st.markdown(
     """
 <style>
 .stApp {background:#f8fafb;}
-.block-container {max-width:1120px;padding-top:1.3rem;}
-h1 {letter-spacing:-.035em;}
-/* Bright-red, rounded rectangular button reminiscent of STAPLES branding. */
+.block-container {max-width:1320px;padding-top:.65rem;padding-bottom:.5rem;}
+h1 {letter-spacing:-.035em;margin-bottom:.15rem;}
+p, .stCaption {margin-bottom:.25rem;}
+/* Easy-button-inspired red circular CTA with metallic/silver rim. */
+div.stButton {display:flex;justify-content:center;}
 div.stButton > button[kind="primary"] {
-    background:#ce142b !important;
-    color:#fff !important;
-    border:0 !important;
-    border-radius:12px !important;
-    min-height:58px;
-    font-size:1.14rem;
-    font-weight:800;
-    box-shadow:0 5px 14px rgba(160,0,30,.16);
+    width:154px !important;
+    height:154px !important;
+    min-height:154px !important;
+    min-width:154px !important;
+    max-width:154px !important;
+    border-radius:50% !important;
+    border:11px solid #c9cbd0 !important;
+    color:white !important;
+    font-weight:900 !important;
+    font-size:1.36rem !important;
+    padding:.7rem !important;
+    letter-spacing:-.025em;
+    background:radial-gradient(circle at 35% 20%, #ff9099 0%, #f44353 18%, #d8182b 58%, #b50d21 100%) !important;
+    box-shadow:inset 0 0 0 5px #f2f2f4,
+               inset 0 9px 12px rgba(255,255,255,.30),
+               inset 0 -12px 17px rgba(90,0,15,.28),
+               0 9px 0 #a4a6ad,
+               0 16px 22px rgba(18,35,49,.20) !important;
+    text-shadow:0 2px 3px rgba(60,0,0,.28);
+    transition:transform .16s ease, box-shadow .16s ease;
 }
-div.stButton > button[kind="primary"]:hover {background:#a90c21 !important;}
-div.stButton > button[kind="primary"]:focus-visible {outline:3px solid #f3a6b0;outline-offset:2px;}
+div.stButton > button[kind="primary"]:hover {
+    background:radial-gradient(circle at 35% 20%, #ffb1b8 0%, #ff5667 20%, #e31b34 62%, #b70b25 100%) !important;
+    transform:translateY(-2px);
+}
+div.stButton > button[kind="primary"]:active {transform:translateY(5px);box-shadow:inset 0 0 0 5px #f2f2f4,0 3px 0 #a4a6ad !important;}
+div.stButton > button[kind="primary"]:focus-visible {outline:4px solid #eb8290;outline-offset:4px;}
+@media (max-height:790px){
+  div.stButton > button[kind="primary"]{width:124px!important;height:124px!important;min-height:124px!important;min-width:124px!important;max-width:124px!important;font-size:1.12rem!important;border-width:9px!important;}
+}
 </style>
 """,
     unsafe_allow_html=True,
@@ -89,6 +111,7 @@ config = json.dumps({
     "sites": sites,
     "counts": counts,
     "outline": "data:image/svg+xml;base64," + outline_b64,
+    "logo": "data:image/gif;base64," + logo_b64,
     "areaPaths": area_envelopes["paths"],
     "provincePath": province_path,
     "areaOpacity": area_envelopes["opacity"],
@@ -99,36 +122,51 @@ html = r"""
 <style>
 *{box-sizing:border-box}
 body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background:transparent;color:#18313e}
-.panel{position:relative;isolation:isolate;overflow:hidden;padding:14px;border:1px solid #dfe8ed;border-radius:17px;background:#fff}
-.stage{display:flex;align-items:center;justify-content:center;gap:18px}
-.map{position:relative;aspect-ratio:918/1038;width:min(100%,640px);flex:0 1 640px}
+.panel{position:relative;isolation:isolate;overflow:hidden;padding:8px 15px;border:1px solid #dfe8ed;border-radius:17px;background:#fff}
+.stage{display:flex;align-items:center;justify-content:center;gap:25px}
+.map{position:relative;aspect-ratio:918/1038;width:min(100%,540px);flex:0 1 540px}
 .map img,.map svg{position:absolute;inset:0;width:100%;height:100%}
 .area-shade{fill-opacity:1;stroke-width:1.8;stroke-opacity:.56;stroke-linejoin:round;fill-rule:evenodd;transition:fill .13s linear,stroke .13s linear;pointer-events:none}
 .marker{stroke:#10232b;stroke-width:2.6;transition:fill .13s linear,r .13s linear,stroke .13s linear;cursor:help}
 .marker.pulse{r:15;stroke-width:2.9}
 .marker.outside{opacity:.93;stroke:#163843}
-.legend{width:198px;display:flex;flex-direction:column;gap:10px}
-.legend article{border:1px solid #e0e8ed;border-radius:12px;background:#fafcfd;padding:13px}
+.sidebar{width:310px;flex:0 0 310px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.brand-logo{width:232px;max-height:188px;object-fit:contain;display:block;margin:0 auto 8px;mix-blend-mode:multiply}
+.legend{width:100%;display:flex;flex-direction:column;gap:12px}
+.legend article{border:1px solid #e0e8ed;border-radius:15px;background:#fafcfd;padding:16px 18px}
 .legend article.intervention{border-color:#d93c4a;background:#fff1f3}
 .legend article.control{border-color:#88919b;background:#f2f4f6}
-.legend article strong{display:block;font-size:13px;line-height:1.45;margin-bottom:6px}
-.legend article span{display:block;color:#516b7a;font-size:12px}
+.legend article strong{display:block;font-size:20px;line-height:1.3;margin-bottom:6px}
+.legend article span{display:block;color:#516b7a;font-size:17px;line-height:1.35}
 .legend article span:empty{display:none}
-.swatch{display:inline-block;vertical-align:middle;width:11px;height:11px;border-radius:50%;margin-right:7px}
+.swatch{display:inline-block;vertical-align:middle;width:18px;height:18px;border-radius:50%;margin-right:10px}
 [hidden]{display:none !important}
 .celebration{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:5}
-.celebration .party{position:absolute;top:-42px;display:block;opacity:0;font-size:24px;line-height:1;will-change:transform,opacity;animation:party-fall var(--time) cubic-bezier(.2,.65,.55,1) forwards;animation-delay:var(--delay)}
-@keyframes party-fall{
-  0%{transform:translate3d(0,-16px,0) rotate(-25deg) scale(.55);opacity:0}
-  12%{opacity:1}
-  78%{opacity:1}
-  100%{transform:translate3d(var(--sway),810px,0) rotate(var(--spin)) scale(1.15);opacity:0}
+.celebration .party{position:absolute;bottom:-70px;display:block;opacity:0;font-size:44px;line-height:1;will-change:transform,opacity;animation:party-burst var(--time) cubic-bezier(.12,.84,.35,1) forwards;animation-delay:var(--delay)}
+@keyframes party-burst{
+  0%{transform:translate3d(0,18px,0) rotate(-30deg) scale(.62);opacity:0}
+  8%{opacity:1}
+  82%{opacity:1}
+  100%{transform:translate3d(var(--sway),-820px,0) rotate(var(--spin)) scale(1.25);opacity:0}
 }
-@media(max-width:680px){
- .stage{flex-direction:column;gap:2px}
- .map{flex:auto;width:100%;max-width:500px}
- .legend{width:100%;flex-direction:row;flex-wrap:wrap;gap:6px}
- .legend article{flex:1;min-width:95px;padding:9px}
+@media(max-width:980px){
+ .stage{gap:12px}
+ .map{width:min(100%,500px);flex:0 1 500px}
+ .sidebar{width:265px;flex-basis:265px}
+ .brand-logo{width:175px;max-height:146px}
+ .legend article{padding:14px}
+ .legend article strong{font-size:17px}
+ .legend article span{font-size:14px}
+}
+@media(max-width:740px){
+ .stage{flex-direction:column;gap:10px}
+ .map{flex:auto;width:100%;max-width:315px}
+ .sidebar{width:100%;flex:initial;gap:6px}
+ .brand-logo{width:112px;max-height:91px;margin:0 auto 2px}
+ .legend{width:100%;flex-direction:row;flex-wrap:wrap;gap:8px}
+ .legend article{flex:1;min-width:145px;padding:10px}
+ .legend article strong{font-size:16px}
+ .legend article span{font-size:13px}
  .panel{padding:8px}
 }
 @media(prefers-reduced-motion:reduce){.party{animation:none!important;display:none!important}}
@@ -138,19 +176,22 @@ body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background
 <img id="outline" alt="KwaZulu-Natal provincial outline without internal district boundaries"/>
 <svg id="sites" viewBox="0 0 918 1038" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Initiation sites in Area A, Area B and non-study area"></svg>
 </div>
-<div class="legend">
+<div class="sidebar">
+  <img id="brand" class="brand-logo" alt="Animated DiSrupT RR-TB logo" />
+  <div class="legend">
   <article id="cardA"><strong><i class="swatch" id="swatchA"></i>Study area A</strong><span id="labelA"></span></article>
   <article id="cardB"><strong><i class="swatch" id="swatchB"></i>Study area B</strong><span id="labelB"></span></article>
   <article id="cardIntervention" class="intervention" hidden><strong><i class="swatch" style="background:#ce142b"></i>Intervention</strong><span id="interventionName"></span></article>
   <article id="cardControl" class="control" hidden><strong><i class="swatch" style="background:#828b94"></i>Control</strong><span id="controlName"></span></article>
   <article><strong><i class="swatch" style="background:#156082"></i>Non-study area</strong><span id="labelNon"></span></article>
-</div></div><div class="celebration" id="celebration" aria-hidden="true"></div></div>
+</div></div></div><div class="celebration" id="celebration" aria-hidden="true"></div></div>
 <script>
 const cfg=APP_CONFIG;
 const initialPurple="#a02b93",initialGreen="#4ea72e",nonStudyBlue="#156082";
 const interventionRed="#ce142b",controlGrey="#828b94";
 const svg=document.getElementById('sites');
 document.getElementById('outline').src=cfg.outline;
+document.getElementById('brand').src=cfg.logo;
 const groups={A:[],B:[],non_study:[]};
 const shaded={};
 function blendWithWhite(hex,opacity){
@@ -212,14 +253,14 @@ function flash(redArea){
 function celebrate(){
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const sky=document.getElementById('celebration');
-  // Self-contained Messenger-style emoji rain, no external animation library.
-  for(let i=0;i<38;i++){
+  // Rapid upward party-emoji burst from bottom like celebratory confetti.
+  for(let i=0;i<62;i++){
     const span=document.createElement('span');span.className='party';
     span.textContent=i%6===0?'🎊':'🎉';
     span.style.left=(3+Math.random()*94)+'%';
-    span.style.fontSize=(19+Math.random()*15)+'px';
-    span.style.setProperty('--delay',Math.round(Math.random()*900)+'ms');
-    span.style.setProperty('--time',Math.round(2100+Math.random()*1050)+'ms');
+    span.style.fontSize=(37+Math.random()*25)+'px';
+    span.style.setProperty('--delay',Math.round(Math.random()*240)+'ms');
+    span.style.setProperty('--time',Math.round(820+Math.random()*450)+'ms');
     span.style.setProperty('--sway',(Math.random()*140-70)+'px');
     span.style.setProperty('--spin',(Math.random()*1080-540)+'deg');
     sky.appendChild(span);
@@ -251,14 +292,14 @@ if(cfg.winner){
 }
 </script></body></html>
 """
-components.html(html.replace("APP_CONFIG", config), height=755, scrolling=False)
+components.html(html.replace("APP_CONFIG", config), height=640, scrolling=False)
 
 # One permanent session-level draw, with the primary CTA underneath the map.
 # Omitting the button after the draw prevents repeat allocations without a reset.
 if st.session_state.allocation is None:
-    left, centre, right = st.columns([1, 0.75, 1])
+    left, centre, right = st.columns([1, 1, 1])
     with centre:
-        if st.button("Randomise", type="primary", use_container_width=True):
+        if st.button("Randomise", type="primary", use_container_width=False):
             winner = "A" if secrets.randbelow(2) == 0 else "B"
             st.session_state.allocation = {
                 "intervention": winner,

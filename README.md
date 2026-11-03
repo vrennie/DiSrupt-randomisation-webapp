@@ -14,19 +14,21 @@ Based on the latest user instruction, the **four northernmost previously-blue si
 
 The external provincial outline and site classifications are unchanged. The **green area B reaches the western and southern border**, while **purple area A reaches the northern and eastern border**. The **blue non-study corridor** separates them from north to the coastal blue site cluster. There is no uncoloured space inside the province. All three shapes form a non-overlapping visual partition, with 50% appearance on a white map. The Streamlit app draws the full province blue first as a fallback, and then overlays the green and purple regions without colour contamination. These are **illustrative shapes, not official administrative or trial boundaries**.
 
-## Streamlined interface and randomisation animation
+## Presentation-friendly interface and randomisation
 
-- The initial map displays **Area A in purple**, **Area B in green**, and the **non-study corridor in blue**.
-- A bold red rectangular **Randomise** button with rounded corners sits **below** the map. A single click selects A or B with a cryptographically secure 50:50 draw (`secrets.randbelow(2)`); it is hidden after the draw to prevent repeating allocations in the same session.
-- The legend changes from the study-area labels to **Intervention (red)** and **Control (grey)** when the animation starts.
-- **Only areas A and B**, including their shaded regions and site dots, alternate **red / grey**, initially quickly and then more slowly for approximately **15 seconds**. The non-study region and its **11 blue sites** remain unchanged.
-- Once the animation stops, the legend displays which study area was assigned intervention or control, and a short shower of **🎉 party emojis** celebrates the result. The effect respects reduced-motion preferences.
-- Removed redundant on-map status headings, reset controls, JSON allocation downloads, the site-classification data table, and the long explanatory map footer.
+- A compact layout intended for **16:9 projector screens**, with larger area labels and the user-supplied **animated DiSrupT RR-TB GIF logo** in the map's top-right corner.
+- A large, glossy red **Randomise** button with a silver rim and raised circular appearance, based on the supplied STAPLES Easy-button reference. It appears below the map.
+- The initial map shows **Study area A purple**, **Study area B green**, and the **non-study area blue**.
+- Clicking Randomise makes a single secure 50:50 draw (`secrets.randbelow(2)`) before the 15-second visual animation. The two study areas and their site dots alternate **red intervention** and **grey control**, slowing towards the selected result.
+- The legend switches from study-area labels to **Intervention (red)** and **Control (grey)** during the animation and shows the winning study-area labels at the end. The non-study area and its **11 blue sites** remain unchanged throughout.
+- The finish triggers a short **fast upward burst of large 🎉 party emojis**. Reduced-motion preferences are respected.
+- Reset, JSON download, the raw site data table, the animation status heading and the map footnote are not shown. The button disappears after a draw, preventing a repeat draw in the same session.
 
 ## Source files
 
-- `app.py` — the Streamlit application, 15-second animation and session draw
+- `app.py` — the Streamlit application, projector-friendly UI, 15-second animation and session draw
 - `assets/sites.csv` — image-positioned site data and verified/edited group membership
+- `assets/Disrupt_scissor_cut_v2.gif` — animated logo (18-frame GIF) shown above the legend
 - `assets/province_outline.svg` — outer provincial outline only
 - `assets/area_envelopes.json` — precomputed province-clipped purple/green partitions and central blue corridor
 - `scripts/generate_areas.py` — reproducible generator for the boundary-reaching areas and blue corridor
