@@ -14,13 +14,14 @@ Based on the latest user instruction, the **four northernmost previously-blue si
 
 The external provincial outline and site classifications are unchanged. The **green area B reaches the western and southern border**, while **purple area A reaches the northern and eastern border**. The **blue non-study corridor** separates them from north to the coastal blue site cluster. There is no uncoloured space inside the province. All three shapes form a non-overlapping visual partition, with 50% appearance on a white map. The Streamlit app draws the full province blue first as a fallback, and then overlays the green and purple regions without colour contamination. These are **illustrative shapes, not official administrative or trial boundaries**.
 
-## Randomisation animation
+## Streamlined interface and randomisation animation
 
-- Click **RANDOMISE** to draw 50:50 from A or B using `secrets.randbelow(2)`.
-- **Only study areas A and B**, including their shaded envelopes and dots, alternate **green / purple**, rapidly at first and progressively more slowly.
-- The non-study area and its 11 blue dots **never change colour**.
-- The full animation, including a short final settle, takes approximately **15 seconds**.
-- At the end, **green = Intervention** and **purple = Control**; an allocation JSON download appears after the visual reveal.
+- The initial map displays **Area A in purple**, **Area B in green**, and the **non-study corridor in blue**.
+- A bold red rectangular **Randomise** button with rounded corners sits **below** the map. A single click selects A or B with a cryptographically secure 50:50 draw (`secrets.randbelow(2)`); it is hidden after the draw to prevent repeating allocations in the same session.
+- The legend changes from the study-area labels to **Intervention (red)** and **Control (grey)** when the animation starts.
+- **Only areas A and B**, including their shaded regions and site dots, alternate **red / grey**, initially quickly and then more slowly for approximately **15 seconds**. The non-study region and its **11 blue sites** remain unchanged.
+- Once the animation stops, the legend displays which study area was assigned intervention or control, and a short shower of **🎉 party emojis** celebrates the result. The effect respects reduced-motion preferences.
+- Removed redundant on-map status headings, reset controls, JSON allocation downloads, the site-classification data table, and the long explanatory map footer.
 
 ## Source files
 
