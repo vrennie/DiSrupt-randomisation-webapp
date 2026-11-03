@@ -1,32 +1,51 @@
-# DiSrupT geographic randomisation — initiation-site map
+# DiSrupT RR-TB geographic randomisation — site-area visualisation
 
-Streamlit demonstration for a 50:50 allocation of two KwaZulu-Natal study areas using a clean **province-only outline** and individually positioned initiation-site dots.
+Streamlit demonstration of a 50:50 allocation between two geographic study areas, displayed using a **province-only KwaZulu-Natal outline** (no district boundaries).
 
-## Site map
+## Classification update
 
-The map is built from the supplied annotated source image; no internal district boundaries, filled choropleth colours or district shading are shown.
+Based on the latest user instruction, the **four northernmost previously-blue sites** (`N01`–`N04`, now `B19`–`B22`) have been reclassified as **green study area B**. The source-image positions are unchanged.
 
-- **Study area A:** 24 purple-labelled sites (north-eastern grouping in source)
-- **Study area B:** 18 green-labelled sites (south-western grouping in source)
-- **Non-study:** 15 blue-labelled sites
+| Group | Sites | Before randomisation |
+| --- | ---: | --- |
+| Study area A | 24 | Purple |
+| Study area B | 22 | Green |
+| Non-study area | 11 | Dark blue |
 
-The app's starting colours mirror the annotated source. During the animation, study-area dots alternate between **green** (candidate intervention) and **light blue** (candidate control), first rapidly and progressively slower. Non-study dots remain **dark blue**, unchanged throughout. The result is a secure 50:50 draw made in Python before the animation starts.
+The external outline is unchanged. The areas are **illustrative, non-overlapping site envelopes** filled at **50% opacity**, extending slightly beyond the site dots. They are **not official administrative boundaries**. The envelopes were generated from the classified dots with a concave hull, a small surrounding margin, nearest-site partitioning to avoid overlapping area fills, and clipping to the province's outline.
 
-## Files
+## Randomisation animation
 
-- `app.py` — Streamlit app and animation.
-- `assets/sites.csv` — editable site coordinates and area classifications, referenced to the 918×1038 source image.
-- `assets/province_outline.svg` — vectorised external provincial outline only.
+- Click **RANDOMISE** to draw 50:50 from A or B using `secrets.randbelow(2)`.
+- **Only study areas A and B**, including their shaded envelopes and dots, alternate **green / purple**, rapidly at first and progressively more slowly.
+- The non-study area and its 11 blue dots **never change colour**.
+- The full animation, including a short final settle, takes approximately **15 seconds**.
+- At the end, **green = Intervention** and **purple = Control**; an allocation JSON download appears after the visual reveal.
 
-## Run
+## Source files
+
+- `app.py` — the Streamlit application, 15-second animation and session draw
+- `assets/sites.csv` — image-positioned site data and verified/edited group membership
+- `assets/province_outline.svg` — outer provincial outline only
+- `assets/area_envelopes.json` — precomputed SVG region paths for the 50% translucent backgrounds
+- `scripts/generate_areas.py` — optional reproducible generator for the region paths
+
+To run the app:
 
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-## Validation and limitations
+If you edit the site coordinates or group assignments, regenerate the corresponding area shapes before committing:
 
-The dot centres and provincial outline were **digitised from the reference image**, not extracted from authoritative GIS data or an official study site roster. **Review and correct any site identities/coordinates/classification before using them for study decisions.**
+```bash
+pip install 'shapely>=2'
+python scripts/generate_areas.py
+```
 
-This is a visual demonstrator, **not a clinical-trial allocation service**. Session state and the downloadable JSON file are not a durable, access-controlled audit log. Operational use requires an approved allocation algorithm, access controls, pre-specified handling of repeat requests, persistent audit logging, and protocol-validated site definitions.
+Only Streamlit is needed to **run** the app; Shapely is only needed to **regenerate** the area-shape asset.
+
+## Important limitations
+
+This is a visual prototype, **not a production clinical trial randomisation service**. Site coordinates and group envelopes were digitised from supplied images and must be checked against authoritative study records. Session state is not a durable allocation ledger, and the animation provides no allocation concealment against a user inspecting the page. Approved trial use requires an auditable, persistent and protocol-approved allocation system with access controls and protection against repeat draws.

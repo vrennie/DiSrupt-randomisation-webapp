@@ -41,10 +41,10 @@ B15,148.0,801.0,B,green
 B16,243.0,810.5,B,green
 B17,330.0,837.5,B,green
 B18,330.0,864.5,B,green
-N01,281.0,240.0,non_study,blue
-N02,270.0,266.0,non_study,blue
-N03,281.0,317.5,non_study,blue
-N04,309.0,344.5,non_study,blue
+B19,281.0,240.0,B,blue_to_green_user_override
+B20,270.0,266.0,B,blue_to_green_user_override
+B21,281.0,317.5,B,blue_to_green_user_override
+B22,309.0,344.5,B,blue_to_green_user_override
 N05,438.8,579.6,non_study,blue
 N06,424.0,591.0,non_study,blue
 N07,483.0,618.0,non_study,blue
