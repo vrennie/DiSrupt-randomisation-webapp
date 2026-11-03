@@ -1,4 +1,5 @@
 """DiSrupT geographic randomisation visualisation — demonstration only."""
+import base64
 import json
 import secrets
 from datetime import datetime, timezone
@@ -64,10 +65,10 @@ with left:
 with right:
     st.write("Site dots alternate between **green** and **blue**—fast at first, then slower—before intervention (green) and control (blue) are revealed.")
 
-map_b64_path = Path(__file__).parent / "assets" / "kzn_map.b64"
+map_path = Path(__file__).parent / "assets" / "kzn_map.webp"
 background = (
-    "data:image/webp;base64," + map_b64_path.read_text(encoding="ascii").strip()
-    if map_b64_path.exists() else ""
+    "data:image/webp;base64," + base64.b64encode(map_path.read_bytes()).decode("ascii")
+    if map_path.exists() else ""
 )
 
 config = json.dumps({
