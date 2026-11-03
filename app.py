@@ -1,5 +1,11 @@
-"""DiSrupT geographic randomisation visualisation — demonstration only."""
+"""DiSrupT RR-TB site-level geographic randomisation visual demonstration.
+
+Not a clinical-trial allocation service. Image-derived site classifications
+must be approved and verified before any operational deployment.
+"""
+
 import base64
+import csv
 import json
 import secrets
 from datetime import datetime, timezone
@@ -9,163 +15,204 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 st.set_page_config(page_title="DiSrupT | Randomisation", page_icon="🎯", layout="wide")
-st.title("DiSrupT RR-TB | Geographic randomisation")
-st.caption("Illustrative site grouping traced from the two supplied block maps.")
+ASSETS = Path(__file__).resolve().parent / "assets"
 
-# Coordinates in the 540 x 574 pixel version of the supplied uncoloured map.
-# Sites were located using the pink facility dots, then assigned to one of the
-# two groups by their positions inside the highlighted block outlines.
-# Verify site membership against authoritative site and geographic records.
-SITES = {
-    "north_east": [
-        [512, 34], [262, 89], [279, 272], [296, 247], [413, 215],
-        [338, 195], [190, 167], [321, 339], [368, 152], [303, 239],
-        [417, 110], [163, 167], [345, 281], [399, 185], [152, 154],
-        [331, 221], [337, 313], [415, 53], [310, 289], [255, 251],
-        [313, 247], [380, 233], [394, 173], [160, 135], [328, 247],
-        [389, 230]
-    ],
-    "south_west": [
-        [141, 298], [137, 394], [165, 447], [124, 238], [79, 496],
-        [232, 304], [251, 463], [74, 316], [175, 481], [157, 323],
-        [119, 428], [141, 500], [151, 494], [266, 341], [133, 488]
+
+def get_sites():
+    with (ASSETS / "sites.csv").open(newline="", encoding="utf-8") as file:
+        rows = list(csv.DictReader(file))
+    expected = {"A", "B", "non_study"}
+    if any(site["area"] not in expected for site in rows):
+        st.error("Invalid study-area category in assets/sites.csv")
+        st.stop()
+    return [
+        {
+            "id": item["site_id"],
+            "x": float(item["x"]),
+            "y": float(item["y"]),
+            "area": item["area"],
+        }
+        for item in rows
     ]
-}
 
-if "assignment" not in st.session_state:
-    st.session_state.assignment = None
 
-st.markdown("""
+sites = get_sites()
+counts = {area: sum(site["area"] == area for site in sites) for area in ("A", "B", "non_study")}
+outline_b64 = base64.b64encode((ASSETS / "province_outline.svg").read_bytes()).decode("ascii")
+
+if "allocation" not in st.session_state:
+    st.session_state.allocation = None
+
+st.markdown(
+    """
 <style>
-.block-container {max-width: 1110px; padding-top: 2rem;}
-.stApp {background-color: #f8fafb;}
-div.stButton > button[kind="primary"] {
-    background: #116c7b; color: white; border-radius: 12px;
-    padding: .8rem 1.5rem; font-weight: 750;
-}
+.stApp {background:#f8fafb;}
+.block-container {max-width:1120px;padding-top:2rem;}
+h1 {letter-spacing:-.035em;}
+div.stButton > button[kind="primary"] {background:#116f80;color:white;border:0;
+    border-radius:12px;font-size:1.03rem;padding:.75rem 1.5rem;font-weight:750;}
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
-left, right = st.columns([1, 2], vertical_alignment="bottom")
-with left:
-    locked = st.session_state.assignment is not None
+st.caption("DiSrupT RR-TB  /  GEOGRAPHIC AREA RANDOMISATION")
+st.title("Randomisation")
+st.write(
+    "The KwaZulu-Natal province outline, with **no district shading or internal district lines**. "
+    "Sites are positioned and grouped from the colour-coded reference image."
+)
+
+col_action, col_info = st.columns([1, 2], vertical_alignment="center")
+with col_action:
+    locked = st.session_state.allocation is not None
     if st.button("🎯 RANDOMISE", type="primary", use_container_width=True, disabled=locked):
-        # The 50:50 result is drawn exactly once before the visual animation.
-        selected = "north_east" if secrets.randbelow(2) == 0 else "south_west"
-        st.session_state.assignment = {
-            "intervention": selected,
-            "control": "south_west" if selected == "north_east" else "north_east",
+        # A single cryptographically secure 50:50 draw, before starting the animation.
+        winner = "A" if secrets.randbelow(2) == 0 else "B"
+        st.session_state.allocation = {
+            "intervention": winner,
+            "control": "B" if winner == "A" else "A",
             "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "site_counts": counts,
         }
         st.rerun()
     if locked and st.button("Reset demonstration", use_container_width=True):
-        st.session_state.assignment = None
+        st.session_state.allocation = None
         st.rerun()
-    st.caption("50:50 random draw. Animation does not determine the outcome.")
-with right:
-    st.write("Site dots alternate between **green** and **blue**—fast at first, then slower—before intervention (green) and control (blue) are revealed.")
+with col_info:
+    st.caption(
+        "Before the draw: **purple = Area A**, **green = Area B**, "
+        "**dark blue = non-study**. During randomisation, only Area A and B dots "
+        "alternate between intervention green and control light blue."
+    )
 
-map_path = Path(__file__).parent / "assets" / "kzn_map.webp"
-background = (
-    "data:image/webp;base64," + base64.b64encode(map_path.read_bytes()).decode("ascii")
-    if map_path.exists() else ""
-)
-
+winner = st.session_state.allocation["intervention"] if st.session_state.allocation else None
 config = json.dumps({
-    "winner": st.session_state.assignment["intervention"] if st.session_state.assignment else None,
-    "background": background,
-    "sites": SITES,
+    "winner": winner,
+    "sites": sites,
+    "counts": counts,
+    "outline": "data:image/svg+xml;base64," + outline_b64,
 })
-page = r"""
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+
+html = r"""
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,sans-serif;color:#183144}
-.panel{border:1px solid #e0e8ed;border-radius:16px;background:white;padding:15px}
-.status{text-align:center;font-size:15px;font-weight:700;margin-bottom:10px;min-height:24px}
-.stage{display:flex;justify-content:center;align-items:center;gap:22px}
-.map{position:relative;flex:0 1 540px;aspect-ratio:540/574;max-width:540px;width:100%}
-.map img,.map svg{position:absolute;width:100%;height:100%;inset:0}
-.map img{object-fit:fill}
-.site{stroke:#fff;stroke-width:1.2;transition:fill .12s, r .12s}
-.site.selected{r:5.7;stroke-width:1.6}
-.legend{display:flex;flex-direction:column;gap:14px;min-width:180px}
-.legend article{padding:14px;border-radius:12px;border:1px solid #e0e7ed;background:#f7fafb}
-.legend strong{display:block;font-size:14px;margin-bottom:5px}
-.legend span{font-size:13px}
-.legend article.intervention{border-color:#22a579;background:#e9f8f3}
-.legend article.control{border-color:#609fc2;background:#edf6fc}
-@media(max-width:680px){.stage{flex-direction:column;gap:8px}.legend{flex-direction:row;min-width:0;width:100%}.legend article{flex:1;padding:10px}}
+*{box-sizing:border-box}body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background:transparent;color:#18313e}
+.panel{padding:14px;border:1px solid #dfe8ed;border-radius:17px;background:#fff;}
+.status{text-align:center;font-size:15px;font-weight:750;min-height:24px;margin-bottom:7px;}
+.stage{display:flex;align-items:center;justify-content:center;gap:18px;}
+.map{position:relative;aspect-ratio:918/1038;width: min(100%, 640px);flex:0 1 640px;}
+.map img,.map svg{position:absolute;inset:0;width:100%;height:100%;}
+.marker{stroke:#10232b;stroke-width:2.6;transition:fill .13s linear,r .13s linear,stroke .13s linear;cursor:help;}
+.marker.pulse{r:16;stroke-width:3.1;}
+.marker.outside{opacity:.93;stroke:#163843;}
+.legend{width:198px;display:flex;flex-direction:column;gap:10px;}
+.legend article{border:1px solid #e0e8ed;border-radius:12px;background:#fafcfd;padding:13px;}
+.legend article.intervention{border-color:#2baf7d;background:#ecfaf4;}
+.legend article.control{border-color:#73b3d8;background:#edf7fc;}
+.legend article strong{display:block;font-size:13px;line-height:1.45;margin-bottom:6px;}
+.legend article span{display:block;color:#516b7a;font-size:12px;}
+.swatch{display:inline-block;vertical-align:middle;width:11px;height:11px;border-radius:50%;margin-right:7px;}
+.foot{padding:6px 0 0 5px;font-size:12px;color:#6d7f88;}
+@media(max-width:680px){.stage{flex-direction:column;gap:2px}.map{flex:auto;width:100%;max-width:600px}.legend{width:100%;flex-direction:row;flex-wrap:wrap;gap:6px}.legend article{flex:1;min-width:95px;padding:9px}.panel{padding:8px}}
 </style></head><body>
-<div class="panel">
-  <div class="status" id="status">Press RANDOMISE to start</div>
-  <div class="stage">
-    <div class="map" aria-label="KwaZulu-Natal map with initiation sites highlighted by allocation group">
-      <img id="background" alt="KwaZulu-Natal district map with facility locations" />
-      <svg viewBox="0 0 540 574" preserveAspectRatio="none" id="dots"></svg>
-    </div>
-    <div class="legend">
-      <article id="cardNorth"><strong>Block A · North-east</strong><span id="labelNorth">Unassigned</span></article>
-      <article id="cardSouth"><strong>Block B · South-west</strong><span id="labelSouth">Unassigned</span></article>
-    </div>
-  </div>
+<div class="panel"><div class="status" id="status">Study-area classification</div>
+<div class="stage"><div class="map" aria-label="Province outline and colour-coded initiation sites">
+<img id="outline" alt="KwaZulu-Natal provincial outline without internal district boundaries"/>
+<svg id="sites" viewBox="0 0 918 1038" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Initiation sites in Area A, Area B and non-study area"></svg>
 </div>
+<div class="legend">
+  <article id="cardA"><strong><i class="swatch" id="swatchA"></i>Study area A</strong><span id="labelA">Purple · awaiting draw</span></article>
+  <article id="cardB"><strong><i class="swatch" id="swatchB"></i>Study area B</strong><span id="labelB">Green · awaiting draw</span></article>
+  <article><strong><i class="swatch" style="background:#156082"></i>Non-study sites</strong><span id="labelNon">Dark blue · unchanged</span></article>
+</div></div></div>
+<div class="foot">Hover over a dot to see its site ID and classification. The image-derived positions can be reviewed in sites.csv.</div>
 <script>
 const cfg=APP_CONFIG;
-const green="#16aa7c",blue="#589bc4";
-const svg=document.getElementById("dots");
-if(cfg.background){document.getElementById("background").src=cfg.background;}
-const makeSite=(p,group)=>{
-  const dot=document.createElementNS("http://www.w3.org/2000/svg","circle");
-  dot.setAttribute("cx",p[0]);dot.setAttribute("cy",p[1]);
-  dot.setAttribute("r",4.6);dot.setAttribute("class","site");
-  dot.dataset.group=group;svg.appendChild(dot);return dot;
-};
-const north=cfg.sites.north_east.map(p=>makeSite(p,"north"));
-const south=cfg.sites.south_west.map(p=>makeSite(p,"south"));
-function colour(northGreen,chosen){
-  for(const c of north){c.setAttribute("fill",northGreen?green:blue);c.setAttribute("class","site"+(chosen==="north"?" selected":""));}
-  for(const c of south){c.setAttribute("fill",northGreen?blue:green);c.setAttribute("class","site"+(chosen==="south"?" selected":""));}
+const purple="#a02b93",initialGreen="#4ea72e",nonStudyBlue="#156082";
+const interventionGreen="#21ac71",controlBlue="#66b3df";
+const svg=document.getElementById('sites');
+document.getElementById('outline').src=cfg.outline;
+const groups={A:[],B:[],non_study:[]};
+for(const site of cfg.sites){
+  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  c.setAttribute('cx',site.x); c.setAttribute('cy',site.y);
+  c.setAttribute('r','13'); c.setAttribute('class','marker'+(site.area==='non_study'?' outside':''));
+  const title=document.createElementNS('http://www.w3.org/2000/svg','title');
+  title.textContent=site.id+' — '+(site.area==='non_study'?'Non-study':'Study area '+site.area);
+  c.appendChild(title);svg.appendChild(c);groups[site.area].push(c);
+}
+const setFill=(list,colour,pulse=false)=>list.forEach(el=>{
+  el.setAttribute('fill',colour);
+  el.setAttribute('class','marker'+(pulse?' pulse':'')+(list===groups.non_study?' outside':''));
+});
+function initial(){
+  setFill(groups.A,purple); setFill(groups.B,initialGreen); setFill(groups.non_study,nonStudyBlue);
+  document.getElementById('swatchA').style.background=purple;
+  document.getElementById('swatchB').style.background=initialGreen;
+  document.getElementById('labelA').textContent=cfg.counts.A+' purple sites';
+  document.getElementById('labelB').textContent=cfg.counts.B+' green sites';
+  document.getElementById('labelNon').textContent=cfg.counts.non_study+' blue sites (unchanged)';
+}
+function flash(greenArea){
+  setFill(groups.A,greenArea==='A'?interventionGreen:controlBlue,greenArea==='A');
+  setFill(groups.B,greenArea==='B'?interventionGreen:controlBlue,greenArea==='B');
+  setFill(groups.non_study,nonStudyBlue);
+  document.getElementById('swatchA').style.background=greenArea==='A'?interventionGreen:controlBlue;
+  document.getElementById('swatchB').style.background=greenArea==='B'?interventionGreen:controlBlue;
 }
 function finish(){
-  const northWins=cfg.winner==="north_east";
-  colour(northWins,northWins?"north":"south");
-  const ncard=document.getElementById("cardNorth"),scard=document.getElementById("cardSouth");
-  ncard.classList.add(northWins?"intervention":"control");
-  scard.classList.add(northWins?"control":"intervention");
-  document.getElementById("labelNorth").textContent=(northWins?"INTERVENTION":"CONTROL")+" · "+north.length+" sites";
-  document.getElementById("labelSouth").textContent=(northWins?"CONTROL":"INTERVENTION")+" · "+south.length+" sites";
-  document.getElementById("status").textContent="Allocation complete";
+  flash(cfg.winner);
+  for(const area of ['A','B']){
+    const intervention=area===cfg.winner;
+    document.getElementById('card'+area).classList.add(intervention?'intervention':'control');
+    document.getElementById('label'+area).textContent=cfg.counts[area]+' sites · '+(intervention?'INTERVENTION':'CONTROL');
+  }
+  document.getElementById('status').textContent='Allocation complete';
 }
-colour(true,null); // No pink highlighting at any stage
+initial();
 if(cfg.winner){
-  document.getElementById("status").textContent="Randomising…";
-  const northWins=cfg.winner==="north_east";
-  const steps=23;let i=0;
-  // Odd number of steps ensures final highlighted group matches the draw.
-  const firstGreen=northWins;
+  document.getElementById('status').textContent='Randomising…';
+  const count=23;let i=0;
+  // The draw has already been made in Python; the animation simply lands on it.
   function tick(){
-    const greenOnNorth=(i%2===0)?firstGreen:!firstGreen;
-    colour(greenOnNorth,greenOnNorth?"north":"south");
-    if(i===steps-1){setTimeout(finish,700);return;}
-    const progress=i/(steps-1);
-    const delay=65+620*Math.pow(progress,2.25);
+    const active=(i%2===0)?cfg.winner:(cfg.winner==='A'?'B':'A');
+    flash(active);
+    if(i===count-1){setTimeout(finish,620);return;}
+    const progress=i/(count-1);
+    const delay=65+560*Math.pow(progress,2.2);
     i++;
     setTimeout(tick,delay);
   }
-  setTimeout(tick,280);
+  setTimeout(tick,300);
 }
 </script></body></html>
 """
-components.html(page.replace("APP_CONFIG", config), height=730, scrolling=False)
+components.html(html.replace("APP_CONFIG", config), height=810, scrolling=False)
 
-if st.session_state.assignment:
-    record = st.session_state.assignment
-    names = {"north_east": "Block A — North-east", "south_west": "Block B — South-west"}
-    st.success(
-        f"Intervention: {names[record['intervention']]}  |  Control: {names[record['control']]}"
-    )
+if st.session_state.allocation:
+    result = st.session_state.allocation
+    st.success(f"Intervention: Study area {result['intervention']} · Control: Study area {result['control']}")
     st.download_button(
-        "Download session allocation (JSON)", data=json.dumps(record, indent=2),
+        "Download session allocation (JSON)",
+        data=json.dumps(result, indent=2),
         file_name="disrupt-allocation.json", mime="application/json",
     )
-st.caption("Visual prototype only: image-derived site groupings require validation, and allocations are not kept in a durable audit log.")
+
+with st.expander("Site positions and classification data"):
+    st.write(
+        f"**Study area A:** {counts['A']} sites · **Study area B:** {counts['B']} sites · "
+        f"**Non-study:** {counts['non_study']} sites."
+    )
+    st.dataframe(sites, hide_index=True, use_container_width=True)
+    st.download_button(
+        "Download site classification (CSV)",
+        data=(ASSETS / "sites.csv").read_bytes(),
+        file_name="disrupt_site_classification.csv", mime="text/csv",
+    )
+
+st.caption(
+    "Visual demonstration only. Site coordinates and categories were extracted from the "
+    "user-supplied labelled map and should be verified. Allocations are temporary "
+    "browser-session state, not an approved or durable clinical-trial randomisation record."
+)

@@ -1,2 +1,1 @@
 streamlit>=1.39
-pillow>=10.0

@@ -1,36 +1,32 @@
-# DiSrupT RR-TB geographic randomisation map
+# DiSrupT geographic randomisation — initiation-site map
 
-Interactive Streamlit visualisation of a 50:50 random assignment between two predefined KwaZulu-Natal geographic groups.
+Streamlit demonstration for a 50:50 allocation of two KwaZulu-Natal study areas using a clean **province-only outline** and individually positioned initiation-site dots.
 
-## What happens
+## Site map
 
-1. Click **RANDOMISE**. Python uses `secrets.randbelow(2)` to pick the intervention group **before** the visual effect begins.
-2. The map's initiation-site dots (not entire polygons) alternate **green / blue** quickly at first and then progressively more slowly.
-3. The animation stops with the randomly selected group's dots **green = Intervention** and the other group's dots **blue = Control**.
-4. The session result is shown below the map and can be downloaded as JSON.
+The map is built from the supplied annotated source image; no internal district boundaries, filled choropleth colours or district shading are shown.
 
-The district boundaries and site locations remain visible using `assets/kzn_map.webp`, derived from the uncoloured reference image provided for this app.
+- **Study area A:** 24 purple-labelled sites (north-eastern grouping in source)
+- **Study area B:** 18 green-labelled sites (south-western grouping in source)
+- **Non-study:** 15 blue-labelled sites
 
-## Current demonstration groups
+The app's starting colours mirror the annotated source. During the animation, study-area dots alternate between **green** (candidate intervention) and **light blue** (candidate control), first rapidly and progressively slower. Non-study dots remain **dark blue**, unchanged throughout. The result is a secure 50:50 draw made in Python before the animation starts.
 
-- **Block A · North-east** — 26 image-detected initiation-site dots
-- **Block B · South-west** — 15 image-detected initiation-site dots
+## Files
 
-Dots were located on the map and assigned to one of the two groups using the highlighted block regions in the supplied reference. These **image-based detections and group memberships are approximate**, not a validated authoritative site register. Please verify all site identities and their block memberships against the approved study list/GIS data before use.
+- `app.py` — Streamlit app and animation.
+- `assets/sites.csv` — editable site coordinates and area classifications, referenced to the 918×1038 source image.
+- `assets/province_outline.svg` — vectorised external provincial outline only.
 
-## Run locally
+## Run
 
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-## Files
+## Validation and limitations
 
-- `app.py` — Streamlit UI, secure draw, site groups, animation, and session record
-- `assets/kzn_map.webp` — reference district/facility background map
-- `requirements.txt` — Python packages
+The dot centres and provincial outline were **digitised from the reference image**, not extracted from authoritative GIS data or an official study site roster. **Review and correct any site identities/coordinates/classification before using them for study decisions.**
 
-## Important
-
-This is a **visual prototype**, not a production clinical-trial randomisation system. The draw is 50:50 and generated before the animation, but Streamlit session state is not a durable allocation ledger. Operational trial use requires verified cluster assignments, preapproved allocation procedures, secure authentication, idempotence, audit logs, allocation concealment where required, and persistent storage.
+This is a visual demonstrator, **not a clinical-trial allocation service**. Session state and the downloadable JSON file are not a durable, access-controlled audit log. Operational use requires an approved allocation algorithm, access controls, pre-specified handling of repeat requests, persistent audit logging, and protocol-validated site definitions.
