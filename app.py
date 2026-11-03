@@ -63,9 +63,14 @@ st.markdown(
 /* One seamless, white presentation canvas, without a framed map card. */
 .stApp, [data-testid="stAppViewContainer"] {background:#ffffff!important;}
 [data-testid="stHeader"] {background:transparent!important;}
-.block-container {max-width:1210px!important;padding-top:.45rem;padding-bottom:.4rem;}
+.block-container {max-width:1210px!important;padding-top:.08rem;padding-bottom:.4rem;}
 h1 {letter-spacing:-.035em;margin-bottom:.05rem;}
 p, .stCaption {margin-bottom:.1rem;}
+/* The partner montage is displayed exactly where the CTA was after the draw. */
+[data-testid="stImage"] {display:flex!important;justify-content:center!important;width:100%!important;margin-top:-.3rem!important;}
+[data-testid="stImage"] img {width:100%!important;max-width:1200px!important;max-height:232px!important;object-fit:contain!important;}
+@media(max-height:800px) and (min-width:1000px){[data-testid="stImage"] img {max-height:164px!important;}}
+@media(max-width:720px){[data-testid="stImage"] img {max-height:125px!important;}}
 /* Projector-friendly button: quiet visual design, bold oversized label. */
 div.stButton {display:block;width:100%;}
 div.stButton > button[kind="primary"] {
@@ -129,8 +134,14 @@ div.stButton > button[kind="primary"]:focus-visible {outline:3px solid #6d9da8!i
     unsafe_allow_html=True,
 )
 
-st.caption("DiSrupT RR-TB")
+# The animated project logo already appears beside the legend.
 st.title("Randomisation")
+
+# On shorter projector screens make room for the logos after the draw.
+if st.session_state.allocation is not None:
+    st.markdown("""<style>
+@media(max-height:800px) and (min-width:1000px){.stApp iframe{height:435px!important;}}
+</style>""", unsafe_allow_html=True)
 
 winner = st.session_state.allocation["intervention"] if st.session_state.allocation else None
 config = json.dumps({
@@ -201,6 +212,11 @@ body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background
  .panel{padding:0}
 }
 
+@media(max-height:530px) and (min-width:760px){
+ body.after-draw .map{width:min(100%,375px);flex:0 1 375px}
+ body.after-draw .sidebar{width:270px;flex-basis:270px}
+ body.after-draw .brand-logo{width:150px;max-height:113px}
+}
 </style></head><body>
 <div class="panel">
 <div class="stage"><div class="map" aria-label="Province outline and colour-coded initiation sites">
@@ -353,7 +369,10 @@ if(cfg.winner){
 }
 </script></body></html>
 """
-components.html(html.replace("APP_CONFIG", config), height=665, scrolling=False)
+rendered_html = html.replace("APP_CONFIG", config)
+if winner:
+    rendered_html = rendered_html.replace("<body>", '<body class="after-draw">')
+components.html(rendered_html, height=665, scrolling=False)
 
 # One permanent session-level draw, with the primary CTA underneath the map.
 # Omitting the button after the draw prevents repeat allocations without a reset.
@@ -367,6 +386,11 @@ if st.session_state.allocation is None:
             "site_counts": counts,
         }
         st.rerun()
+
+else:
+    # Immediately replace Randomise with partner logos and retain them throughout
+    # the 15-second animation and after the result is displayed.
+    st.image(str(ASSETS / "disrupt_partners_compact.png"), use_container_width=True)
 
 st.caption(
     "Visual demonstration only: this is not an audited or persistent clinical-trial allocation system."

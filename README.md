@@ -22,13 +22,15 @@ The external provincial outline and site classifications are unchanged. The **gr
 - Clicking Randomise makes a single secure 50:50 draw (`secrets.randbelow(2)`) before the 15-second visual animation. The two study areas and their site dots alternate **red intervention** and **grey control**, slowing towards the selected result.
 - The legend switches from study-area labels to **Intervention (red)** and **Control (grey)** during the animation and shows the winning study-area labels at the end. The non-study area and its **11 blue sites** remain unchanged throughout.
 - The finish triggers a **slower 2.7–3.9 second burst of large 🎉 party emojis**, launched from the **bottom centre of the entire browser viewport** and spreading upward and outward (not clipped to the map frame). Reduced-motion preferences are respected. In Streamlit, the map iframe uses same-origin parent document access for this browser-level visual effect, with a local iframe fallback if access is unavailable.
-- Reset, JSON download, the raw site data table, the animation status heading and the map footnote are not shown. The button disappears after a draw, preventing a repeat draw in the same session.
+- The map and legend sit higher on the page, with the redundant small subtitle removed. Immediately after clicking Randomise, the button is **replaced by all ten partner logos**, arranged into a compact two-row footer for projector screens. The logos persist during the 15-second animation and after the final result. On short projector displays, the map scales down slightly after the draw so the footer remains visible.
+- Reset, JSON download, the raw site data table, the animation status heading and the map footnote are not shown. Repeat draws in the same session are prevented.
 
 ## Source files
 
 - `app.py` — the Streamlit application, projector-friendly UI, 15-second animation and session draw
 - `assets/sites.csv` — image-positioned site data and verified/edited group membership
 - `assets/Disrupt_scissor_cut_v2.gif` — animated logo (18-frame GIF) shown above the legend
+- `assets/disrupt_partners_compact.png` — ten logos from the supplied partner montage, arranged for an accessible footer
 - `assets/province_outline.svg` — outer provincial outline only
 - `assets/area_envelopes.json` — precomputed province-clipped purple/green partitions and central blue corridor
 - `scripts/generate_areas.py` — reproducible generator for the boundary-reaching areas and blue corridor
