@@ -16,7 +16,7 @@ The external provincial outline and site classifications are unchanged. The **gr
 
 ## Presentation-friendly interface and randomisation
 
-- A **white, borderless page** intended for **16:9 projector screens** (including a compact 720p layout), with large area labels and the user-supplied **animated DiSrupT RR-TB GIF logo** above the legend at the top right.
+- A **white, borderless page** intended for **16:9 projector screens** (including a compact 720p layout), with large area labels and the user-supplied **animated DiSrupT RR-TB GIF logo** above the legend at the top right. The figure frame height and vertical spacing are tightened so the Randomise button / countdown sits closer to the figure without reducing the figure itself.
 - A **full-width, clean dark-teal rectangular Randomise button** with rounded corners and an oversized, projector-friendly label (including the nested Streamlit text element). It appears directly below the map and legend.
 - The initial map shows **Study area A purple**, **Study area B green**, and the **non-study area blue**.
 - Clicking Randomise makes a single secure 50:50 draw (`secrets.randbelow(2)`) before the 15-second visual animation. The Randomise button disappears immediately and is replaced by a large **15, 14, 13, …, 1** countdown in the exact same space. It starts with the post-click render and runs throughout the 15-second red/grey pinball reveal; the permanent partner footer remains below.
