@@ -66,6 +66,8 @@ st.markdown(
 .block-container {max-width:1210px!important;padding-top:.08rem;padding-bottom:.4rem;}
 h1 {letter-spacing:-.035em;margin-bottom:.05rem;}
 p, .stCaption {margin-bottom:.1rem;}
+/* Keep the map, Randomise/countdown, and partner footer closer together. */
+.block-container [data-testid="stVerticalBlock"]{gap:.45rem!important;}
 /* Plain always-visible footer image; bypasses Streamlit's image-list loader. */
 .partner-footer{display:flex;width:100%;align-items:center;justify-content:center;margin:.15rem auto 0;padding:0;}
 .partner-footer img{display:block;width:100%;max-width:1200px;height:auto;max-height:190px;object-fit:contain;}
@@ -122,7 +124,7 @@ div.stButton > button[kind="primary"]:hover {
 div.stButton > button[kind="primary"]:active {background:#102f39!important;}
 div.stButton > button[kind="primary"]:focus-visible {outline:3px solid #6d9da8!important;outline-offset:3px;}
 @media(max-height:800px) and (min-width:1000px){
-   .stApp iframe {height:430px!important;}
+   .stApp iframe {height:418px!important;}
   .block-container {padding-top:.1rem!important;}
   div.stButton > button[kind="primary"] {height:88px!important;min-height:88px!important;}
   div.stButton > button[kind="primary"],
@@ -369,7 +371,7 @@ if(cfg.winner){
 }
 </script></body></html>
 """
-components.html(html.replace("APP_CONFIG", config), height=665, scrolling=False)
+components.html(html.replace("APP_CONFIG", config), height=650, scrolling=False)
 
 # One permanent session-level draw, with the primary CTA underneath the map.
 # Omitting the button after the draw prevents repeat allocations without a reset.
