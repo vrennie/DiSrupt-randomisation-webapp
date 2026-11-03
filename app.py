@@ -72,8 +72,9 @@ div.stButton > button[kind="primary"] {background:#116f80;color:white;border:0;
 st.caption("DiSrupT RR-TB  /  GEOGRAPHIC AREA RANDOMISATION")
 st.title("Randomisation")
 st.write(
-    "KwaZulu-Natal provincial outline with three **50%-opacity site-group areas**, "
-    "extending beyond the marked initiation sites. There are no district boundaries."
+    "KwaZulu-Natal with three **50%-opacity regions**: green extends to the western "
+    "and southern provincial borders, purple reaches the northern and eastern "
+    "borders, and the gap between them remains blue. No district boundaries."
 )
 
 col_action, col_info = st.columns([1, 2], vertical_alignment="center")

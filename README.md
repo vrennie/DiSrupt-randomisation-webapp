@@ -12,7 +12,7 @@ Based on the latest user instruction, the **four northernmost previously-blue si
 | Study area B | 22 | Green |
 | Non-study area | 11 | Dark blue |
 
-The external outline is unchanged. The A and B shapes are **illustrative image-derived site envelopes** extending beyond the sites and clipped to the province. **Every remaining space inside the province is automatically filled blue as non-study**, including all gaps between the two study envelopes. The app always draws blue across the complete province first, then overlays green/purple study regions, so there are no white holes. For consistent 50%-opacity appearance on a white map, the overlay colours are preblended with white, preventing the blue base from changing the study colours. These shapes are **not official administrative boundaries**.
+The external provincial outline and site classifications are unchanged. The **green area B reaches the western and southern border**, while **purple area A reaches the northern and eastern border**. The **blue non-study corridor** separates them from north to the coastal blue site cluster. There is no uncoloured space inside the province. All three shapes form a non-overlapping visual partition, with 50% appearance on a white map. The Streamlit app draws the full province blue first as a fallback, and then overlays the green and purple regions without colour contamination. These are **illustrative shapes, not official administrative or trial boundaries**.
 
 ## Randomisation animation
 
@@ -27,8 +27,8 @@ The external outline is unchanged. The A and B shapes are **illustrative image-d
 - `app.py` — the Streamlit application, 15-second animation and session draw
 - `assets/sites.csv` — image-positioned site data and verified/edited group membership
 - `assets/province_outline.svg` — outer provincial outline only
-- `assets/area_envelopes.json` — precomputed A/B site envelopes and their full blue non-study complement
-- `scripts/generate_areas.py` — optional reproducible generator for the A/B envelopes and blue complement
+- `assets/area_envelopes.json` — precomputed province-clipped purple/green partitions and central blue corridor
+- `scripts/generate_areas.py` — reproducible generator for the boundary-reaching areas and blue corridor
 
 To run the app:
 
@@ -37,7 +37,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-If you edit the site coordinates or group assignments, regenerate the study envelopes and blue complement before committing:
+If you change the manual border control points in the generator, regenerate the shaded regions before committing:
 
 ```bash
 pip install 'shapely>=2'
