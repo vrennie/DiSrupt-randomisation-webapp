@@ -71,6 +71,14 @@ p, .stCaption {margin-bottom:.1rem;}
 .partner-footer img{display:block;width:100%;max-width:1200px;height:auto;max-height:190px;object-fit:contain;}
 @media(max-height:800px) and (min-width:1000px){.partner-footer img{max-height:112px!important;}}
 @media(max-width:720px){.partner-footer img{max-height:120px!important;}}
+/* The countdown replaces the button in the same full-width slot. */
+.randomise-countdown{display:flex;position:relative;justify-content:center;align-items:center;width:100%;height:98px;min-height:98px;overflow:hidden;font-variant-numeric:tabular-nums}
+.randomise-countdown .countdown-second{position:absolute;opacity:0;display:block;white-space:nowrap;color:#183c46;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:900;font-size:clamp(4.5rem,6.6vw,6rem);line-height:1;animation:count-second 1s linear forwards}
+@keyframes count-second{0%{opacity:1;transform:scale(.84)}15%{opacity:1;transform:scale(1)}99.9%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
+@media(max-height:800px) and (min-width:1000px){.randomise-countdown{height:88px;min-height:88px}.randomise-countdown .countdown-second{font-size:5rem}}
+@media(max-width:720px){.randomise-countdown{height:82px;min-height:82px}.randomise-countdown .countdown-second{font-size:4.2rem}}
+@media(prefers-reduced-motion:reduce){.randomise-countdown .countdown-second{animation-name:count-second-static}}
+@keyframes count-second-static{0%,99.9%{opacity:1;transform:none}100%{opacity:0;transform:none}}
 /* Projector-friendly button: quiet visual design, bold oversized label. */
 div.stButton {display:block;width:100%;}
 div.stButton > button[kind="primary"] {
@@ -154,9 +162,7 @@ html = r"""
 body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background:transparent;color:#18313e}
 /* No card: the entire Streamlit page is the white canvas. */
 .panel{position:relative;padding:0;border:0;border-radius:0;background:transparent;overflow:visible}
-.stage{display:flex;align-items:center;justify-content:center;gap:12px}
-.countdown-slot{width:120px;flex:0 0 120px;align-self:stretch;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.countdown{visibility:hidden;display:block;font-size:clamp(70px,7vw,102px);font-weight:900;line-height:1;color:#183c46;font-variant-numeric:tabular-nums;text-align:center;min-width:115px;text-shadow:0 2px 8px rgba(255,255,255,.95)}
+.stage{display:flex;align-items:center;justify-content:center;gap:30px}
 .map{position:relative;aspect-ratio:918/1038;width:min(100%,570px);flex:0 1 570px}
 .map img,.map svg{position:absolute;inset:0;width:100%;height:100%}
 .area-shade{fill-opacity:1;stroke-width:1.8;stroke-opacity:.56;stroke-linejoin:round;fill-rule:evenodd;transition:fill .13s linear,stroke .13s linear;pointer-events:none}
@@ -176,10 +182,8 @@ body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background
 [hidden]{display:none !important}
 
 @media(max-width:980px){
- .stage{gap:8px}
+ .stage{gap:12px}
  .map{width:min(100%,485px);flex:0 1 485px}
- .countdown-slot{width:90px;flex-basis:90px}
- .countdown{font-size:76px;min-width:84px}
  .sidebar{width:265px;flex-basis:265px}
  .brand-logo{width:175px;max-height:146px}
  .legend article{padding:14px}
@@ -199,9 +203,6 @@ body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background
 @media(max-width:740px){
  .stage{flex-direction:column;gap:10px}
  .map{flex:auto;width:100%;max-width:315px}
- .countdown-slot{width:100%;height:0;flex:0 0 0;min-height:0}
- .countdown-slot.active{height:88px;flex-basis:88px}
- .countdown{font-size:74px;min-width:100px}
  .sidebar{width:100%;flex:initial;gap:6px}
  .brand-logo{width:112px;max-height:91px;margin:0 auto 2px}
  .legend{width:100%;flex-direction:row;flex-wrap:wrap;gap:8px}
@@ -213,8 +214,6 @@ body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background
 
 @media(max-height:530px) and (min-width:760px){
  .map{width:min(100%,365px);flex:0 1 365px}
- .countdown-slot{width:96px;flex-basis:96px}
- .countdown{font-size:86px;min-width:90px}
  .sidebar{width:270px;flex-basis:270px}
  .brand-logo{width:150px;max-height:113px}
 }
@@ -224,7 +223,6 @@ body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background
 <img id="outline" alt="KwaZulu-Natal provincial outline without internal district boundaries"/>
 <svg id="sites" viewBox="0 0 918 1038" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Initiation sites in Area A, Area B and non-study area"></svg>
 </div>
-<div id="countdown-slot" class="countdown-slot"><span id="countdown" class="countdown" role="timer" aria-label="Seconds remaining"></span></div>
 <div class="sidebar">
   <img id="brand" class="brand-logo" alt="Animated DiSrupT RR-TB logo" />
   <div class="legend">
@@ -243,7 +241,6 @@ document.getElementById('outline').src=cfg.outline;
 document.getElementById('brand').src=cfg.logo;
 const groups={A:[],B:[],non_study:[]};
 const shaded={};
-let stopCountdown=()=>{};
 function blendWithWhite(hex,opacity){
   // Opaque equivalent of a semi-transparent fill on white. This prevents
   // the blue fallback beneath A and B from changing their perceived colours.
@@ -300,42 +297,6 @@ function flash(redArea){
   paint('B',redArea==='B'?interventionRed:controlGrey,redArea==='B');
   // Non-study dots and the blue provincial background never change.
 }
-// Countdown lives in a reserved column between the map and legend;
-// it never overlays the map or covers the legend.
-function startCountdown(totalMs){
-  const display=document.getElementById('countdown');
-  const slot=document.getElementById('countdown-slot');
-  const start=performance.now();
-  let previous=null,active=true,frameId=null;
-  function stop(){
-    active=false;
-    if(frameId!==null)cancelAnimationFrame(frameId);
-    display.style.visibility='hidden';
-    display.textContent='';
-    slot.classList.remove('active');
-  }
-  function frame(){
-    if(!active)return;
-    const remaining=totalMs-(performance.now()-start);
-    const n=Math.ceil(remaining/1000);
-    if(n>=1 && n<=10 && n!==previous){
-      previous=n;
-      display.textContent=String(n);
-      display.style.visibility='visible';
-      slot.classList.add('active');
-      if(typeof display.animate==='function'){
-        display.animate([
-          {opacity:.45,transform:"scale(.85)"},
-          {opacity:1,transform:"scale(1)"}
-        ],{duration:330,easing:'ease-out'});
-      }
-    }
-    if(remaining>0){frameId=requestAnimationFrame(frame);}
-    else{stop();}
-  }
-  frameId=requestAnimationFrame(frame);
-  return stop;
-}
 function celebrate(){
   if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
   // Streamlit components.html runs inside an iframe. Render the particles in
@@ -384,7 +345,6 @@ function celebrate(){
   }
 }
 function finish(){
-  stopCountdown();
   flash(cfg.winner);
   const loser=cfg.winner==='A'?'B':'A';
   document.getElementById('interventionName').textContent='Study area '+cfg.winner+' · '+cfg.counts[cfg.winner]+' sites';
@@ -395,7 +355,6 @@ initial();
 if(cfg.winner){
   showRoles();
   const steps=23,settleMs=500,totalMs=15000;
-  stopCountdown=startCountdown(totalMs);
   const rawDelays=Array.from({length:steps-1},(_,i)=>0.08+Math.pow(i/(steps-2),2.7));
   const scale=(totalMs-settleMs)/rawDelays.reduce((a,b)=>a+b,0);
   let i=0;
@@ -410,7 +369,7 @@ if(cfg.winner){
 }
 </script></body></html>
 """
-components.html(html.replace("APP_CONFIG", config), height=745, scrolling=False)
+components.html(html.replace("APP_CONFIG", config), height=665, scrolling=False)
 
 # One permanent session-level draw, with the primary CTA underneath the map.
 # Omitting the button after the draw prevents repeat allocations without a reset.
@@ -424,6 +383,18 @@ if st.session_state.allocation is None:
             "site_counts": counts,
         }
         st.rerun()
+
+else:
+    # On the post-click rerun, count down 15 to 1 in the former button position.
+    seconds = "".join(
+        f'<span class="countdown-second" style="animation-delay:{15 - n}s">{n}</span>'
+        for n in range(15, 0, -1)
+    )
+    st.markdown(
+        f'<div class="randomise-countdown" role="timer" '
+        f'aria-label="15-second countdown">{seconds}</div>',
+        unsafe_allow_html=True,
+    )
 
 # The footer is present in both states and does not depend on Streamlit's
 # ImageList component (which failed to import on the deployed website).
