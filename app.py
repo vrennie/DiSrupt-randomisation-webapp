@@ -66,43 +66,63 @@ st.markdown(
 .block-container {max-width:1210px!important;padding-top:.45rem;padding-bottom:.4rem;}
 h1 {letter-spacing:-.035em;margin-bottom:.05rem;}
 p, .stCaption {margin-bottom:.1rem;}
-/* Wide, raised red Easy-style control (not a literal circular button). */
+/* Projector-friendly button: quiet visual design, bold oversized label. */
 div.stButton {display:block;width:100%;}
 div.stButton > button[kind="primary"] {
-    display:block;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
     width:100%!important;
     max-width:none!important;
     min-width:0!important;
-    min-height:90px!important;
-    height:94px!important;
-    border-radius:24px!important;
-    border:6px solid #c7cbd1!important;
+    min-height:98px!important;
+    height:98px!important;
+    padding:12px 24px!important;
+    border-radius:16px!important;
+    border:2px solid #183c46!important;
+    background:#183c46!important;
     color:#ffffff!important;
-    font-weight:900!important;
-    font-size:clamp(2.15rem,3.7vw,3.35rem)!important;
-    letter-spacing:.005em!important;
-    background:linear-gradient(170deg,#fa6370 0%,#e3273d 36%,#c60d26 83%,#ab0820 100%)!important;
-    box-shadow:inset 0 7px 12px rgba(255,255,255,.30),
-               inset 0 -9px 15px rgba(80,0,15,.20),
-               0 5px 0 #a4aab1,
-               0 10px 16px rgba(20,27,35,.17)!important;
-    text-shadow:0 2px 4px rgba(80,0,12,.30)!important;
-    transition:transform .16s ease, box-shadow .16s ease;
+    font-weight:800!important;
+    font-size:clamp(3rem,4.8vw,4rem)!important;
+    line-height:1.05!important;
+    letter-spacing:0!important;
+    box-shadow:none!important;
+    text-shadow:none!important;
+    transition:background-color .16s ease!important;
+}
+/* Streamlit renders button labels in nested Markdown <p> tags.
+   Set their size explicitly: styling only the button was leaving tiny text. */
+div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"],
+div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] p,
+div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] span {
+    font-size:clamp(3rem,4.8vw,4rem)!important;
+    line-height:1.05!important;
+    font-weight:800!important;
+    color:#ffffff!important;
+    margin:0!important;
+    padding:0!important;
 }
 div.stButton > button[kind="primary"]:hover {
-    background:linear-gradient(170deg,#ff808b 0%,#eb3148 36%,#ca1028 83%,#b40b22 100%)!important;
-    transform:translateY(-2px);
+    background:#285564!important;
+    border-color:#285564!important;
 }
-div.stButton > button[kind="primary"]:active {transform:translateY(3px);}
-div.stButton > button[kind="primary"]:focus-visible {outline:4px solid #ed9eaa;outline-offset:3px;}
-/* On 720p projectors, fit the entire map and the CTA above the fold. */
+div.stButton > button[kind="primary"]:active {background:#102f39!important;}
+div.stButton > button[kind="primary"]:focus-visible {outline:3px solid #6d9da8!important;outline-offset:3px;}
 @media(max-height:800px) and (min-width:1000px){
- .stApp iframe {height:510px!important;}
- .block-container {padding-top:.1rem!important;}
- div.stButton > button[kind="primary"] {height:87px!important;min-height:87px!important;font-size:2.8rem!important;}
+  .stApp iframe {height:510px!important;}
+  .block-container {padding-top:.1rem!important;}
+  div.stButton > button[kind="primary"] {height:88px!important;min-height:88px!important;}
+  div.stButton > button[kind="primary"],
+  div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"],
+  div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] p,
+  div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] span {font-size:3.15rem!important;}
 }
 @media(max-width:720px){
- div.stButton > button[kind="primary"] {height:78px!important;min-height:78px!important;font-size:2.2rem!important;border-radius:18px!important;}
+  div.stButton > button[kind="primary"] {height:82px!important;min-height:82px!important;border-radius:14px!important;}
+  div.stButton > button[kind="primary"],
+  div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"],
+  div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] p,
+  div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] span {font-size:2.6rem!important;}
 }
 </style>
 """,
