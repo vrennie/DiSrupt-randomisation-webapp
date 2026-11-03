@@ -39,8 +39,9 @@ def get_sites():
 sites = get_sites()
 counts = {area: sum(site["area"] == area for site in sites) for area in ("A", "B", "non_study")}
 outline_b64 = base64.b64encode((ASSETS / "province_outline.svg").read_bytes()).decode("ascii")
-# These shaded, 50% opacity envelopes are generated from sites.csv with
-# scripts/generate_areas.py; they illustrate the site groups, not official boundaries.
+# These shaded, 50% opacity province-clipped partitions are generated
+# with scripts/generate_areas.py. They illustrate the site groups, not
+# official boundaries.
 area_envelopes = json.loads((ASSETS / "area_envelopes.json").read_text(encoding="utf-8"))
 if set(area_envelopes.get("paths", {})) != {"A", "B", "non_study"}:
     st.error("Missing shaded-area paths. Regenerate assets/area_envelopes.json.")
@@ -140,7 +141,7 @@ html = r"""
   <article><strong><i class="swatch" style="background:#156082"></i>Non-study area</strong><span id="labelNon">Blue · unchanged</span></article>
   <a id="download" class="download" download="disrupt-allocation.json">Download allocation (JSON)</a>
 </div></div></div>
-<div class="foot">The translucent envelopes are illustrative, not official boundaries. Hover over a dot for site ID. Review the editable classifications in sites.csv.</div>
+<div class="foot">The translucent partitions are illustrative, not official boundaries. Hover over a dot for site ID. Review the editable classifications in sites.csv.</div>
 <script>
 const cfg=APP_CONFIG;
 const purple="#a02b93",initialGreen="#4ea72e",nonStudyBlue="#156082";

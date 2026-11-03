@@ -12,7 +12,7 @@ Based on the latest user instruction, the **four northernmost previously-blue si
 | Study area B | 22 | Green |
 | Non-study area | 11 | Dark blue |
 
-The external outline is unchanged. The areas are **illustrative, non-overlapping site envelopes** filled at **50% opacity**, extending slightly beyond the site dots. They are **not official administrative boundaries**. The envelopes were generated from the classified dots with a concave hull, a small surrounding margin, nearest-site partitioning to avoid overlapping area fills, and clipping to the province's outline.
+The external outline is unchanged. The areas are **illustrative, non-overlapping province partitions** filled at **50% opacity** and clipped to the provincial outline. They are **not official administrative boundaries**. In the current layout, **study area A extends to the western and northwestern border**, **study area B extends to the eastern and southern border**, and the **space between them is the non-study area in blue**. Because the four northern override sites remain part of area B, area B includes a small separate northwestern pocket as well as the larger southern/eastern region.
 
 ## Randomisation animation
 
@@ -27,8 +27,8 @@ The external outline is unchanged. The areas are **illustrative, non-overlapping
 - `app.py` — the Streamlit application, 15-second animation and session draw
 - `assets/sites.csv` — image-positioned site data and verified/edited group membership
 - `assets/province_outline.svg` — outer provincial outline only
-- `assets/area_envelopes.json` — precomputed SVG region paths for the 50% translucent backgrounds
-- `scripts/generate_areas.py` — optional reproducible generator for the region paths
+- `assets/area_envelopes.json` — precomputed SVG region paths for the 50% translucent province partitions
+- `scripts/generate_areas.py` — optional reproducible generator for the province-partition paths
 
 To run the app:
 
@@ -37,7 +37,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-If you edit the site coordinates or group assignments, regenerate the corresponding area shapes before committing:
+If you edit the site coordinates or group assignments, regenerate the corresponding province partitions before committing:
 
 ```bash
 pip install 'shapely>=2'
