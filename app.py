@@ -60,42 +60,49 @@ if "allocation" not in st.session_state:
 st.markdown(
     """
 <style>
-.stApp {background:#f8fafb;}
-.block-container {max-width:1320px;padding-top:.65rem;padding-bottom:.5rem;}
-h1 {letter-spacing:-.035em;margin-bottom:.15rem;}
-p, .stCaption {margin-bottom:.25rem;}
-/* Easy-button-inspired red circular CTA with metallic/silver rim. */
-div.stButton {display:flex;justify-content:center;}
+/* One seamless, white presentation canvas, without a framed map card. */
+.stApp, [data-testid="stAppViewContainer"] {background:#ffffff!important;}
+[data-testid="stHeader"] {background:transparent!important;}
+.block-container {max-width:1210px!important;padding-top:.45rem;padding-bottom:.4rem;}
+h1 {letter-spacing:-.035em;margin-bottom:.05rem;}
+p, .stCaption {margin-bottom:.1rem;}
+/* Wide, raised red Easy-style control (not a literal circular button). */
+div.stButton {display:block;width:100%;}
 div.stButton > button[kind="primary"] {
-    width:154px !important;
-    height:154px !important;
-    min-height:154px !important;
-    min-width:154px !important;
-    max-width:154px !important;
-    border-radius:50% !important;
-    border:11px solid #c9cbd0 !important;
-    color:white !important;
-    font-weight:900 !important;
-    font-size:1.36rem !important;
-    padding:.7rem !important;
-    letter-spacing:-.025em;
-    background:radial-gradient(circle at 35% 20%, #ff9099 0%, #f44353 18%, #d8182b 58%, #b50d21 100%) !important;
-    box-shadow:inset 0 0 0 5px #f2f2f4,
-               inset 0 9px 12px rgba(255,255,255,.30),
-               inset 0 -12px 17px rgba(90,0,15,.28),
-               0 9px 0 #a4a6ad,
-               0 16px 22px rgba(18,35,49,.20) !important;
-    text-shadow:0 2px 3px rgba(60,0,0,.28);
+    display:block;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    min-height:90px!important;
+    height:94px!important;
+    border-radius:24px!important;
+    border:6px solid #c7cbd1!important;
+    color:#ffffff!important;
+    font-weight:900!important;
+    font-size:clamp(2.15rem,3.7vw,3.35rem)!important;
+    letter-spacing:.005em!important;
+    background:linear-gradient(170deg,#fa6370 0%,#e3273d 36%,#c60d26 83%,#ab0820 100%)!important;
+    box-shadow:inset 0 7px 12px rgba(255,255,255,.30),
+               inset 0 -9px 15px rgba(80,0,15,.20),
+               0 5px 0 #a4aab1,
+               0 10px 16px rgba(20,27,35,.17)!important;
+    text-shadow:0 2px 4px rgba(80,0,12,.30)!important;
     transition:transform .16s ease, box-shadow .16s ease;
 }
 div.stButton > button[kind="primary"]:hover {
-    background:radial-gradient(circle at 35% 20%, #ffb1b8 0%, #ff5667 20%, #e31b34 62%, #b70b25 100%) !important;
+    background:linear-gradient(170deg,#ff808b 0%,#eb3148 36%,#ca1028 83%,#b40b22 100%)!important;
     transform:translateY(-2px);
 }
-div.stButton > button[kind="primary"]:active {transform:translateY(5px);box-shadow:inset 0 0 0 5px #f2f2f4,0 3px 0 #a4a6ad !important;}
-div.stButton > button[kind="primary"]:focus-visible {outline:4px solid #eb8290;outline-offset:4px;}
-@media (max-height:790px){
-  div.stButton > button[kind="primary"]{width:124px!important;height:124px!important;min-height:124px!important;min-width:124px!important;max-width:124px!important;font-size:1.12rem!important;border-width:9px!important;}
+div.stButton > button[kind="primary"]:active {transform:translateY(3px);}
+div.stButton > button[kind="primary"]:focus-visible {outline:4px solid #ed9eaa;outline-offset:3px;}
+/* On 720p projectors, fit the entire map and the CTA above the fold. */
+@media(max-height:800px) and (min-width:1000px){
+ .stApp iframe {height:510px!important;}
+ .block-container {padding-top:.1rem!important;}
+ div.stButton > button[kind="primary"] {height:87px!important;min-height:87px!important;font-size:2.8rem!important;}
+}
+@media(max-width:720px){
+ div.stButton > button[kind="primary"] {height:78px!important;min-height:78px!important;font-size:2.2rem!important;border-radius:18px!important;}
 }
 </style>
 """,
@@ -122,15 +129,16 @@ html = r"""
 <style>
 *{box-sizing:border-box}
 body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background:transparent;color:#18313e}
-.panel{position:relative;isolation:isolate;overflow:hidden;padding:8px 15px;border:1px solid #dfe8ed;border-radius:17px;background:#fff}
-.stage{display:flex;align-items:center;justify-content:center;gap:25px}
-.map{position:relative;aspect-ratio:918/1038;width:min(100%,540px);flex:0 1 540px}
+/* No card: the entire Streamlit page is the white canvas. */
+.panel{position:relative;padding:0;border:0;border-radius:0;background:transparent;overflow:visible}
+.stage{display:flex;align-items:center;justify-content:center;gap:30px}
+.map{position:relative;aspect-ratio:918/1038;width:min(100%,570px);flex:0 1 570px}
 .map img,.map svg{position:absolute;inset:0;width:100%;height:100%}
 .area-shade{fill-opacity:1;stroke-width:1.8;stroke-opacity:.56;stroke-linejoin:round;fill-rule:evenodd;transition:fill .13s linear,stroke .13s linear;pointer-events:none}
 .marker{stroke:#10232b;stroke-width:2.6;transition:fill .13s linear,r .13s linear,stroke .13s linear;cursor:help}
 .marker.pulse{r:15;stroke-width:2.9}
 .marker.outside{opacity:.93;stroke:#163843}
-.sidebar{width:310px;flex:0 0 310px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.sidebar{width:340px;flex:0 0 340px;display:flex;flex-direction:column;align-items:center;gap:10px}
 .brand-logo{width:232px;max-height:188px;object-fit:contain;display:block;margin:0 auto 8px;mix-blend-mode:multiply}
 .legend{width:100%;display:flex;flex-direction:column;gap:12px}
 .legend article{border:1px solid #e0e8ed;border-radius:15px;background:#fafcfd;padding:16px 18px}
@@ -141,22 +149,25 @@ body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background
 .legend article span:empty{display:none}
 .swatch{display:inline-block;vertical-align:middle;width:18px;height:18px;border-radius:50%;margin-right:10px}
 [hidden]{display:none !important}
-.celebration{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:5}
-.celebration .party{position:absolute;bottom:-70px;display:block;opacity:0;font-size:44px;line-height:1;will-change:transform,opacity;animation:party-burst var(--time) cubic-bezier(.12,.84,.35,1) forwards;animation-delay:var(--delay)}
-@keyframes party-burst{
-  0%{transform:translate3d(0,18px,0) rotate(-30deg) scale(.62);opacity:0}
-  8%{opacity:1}
-  82%{opacity:1}
-  100%{transform:translate3d(var(--sway),-820px,0) rotate(var(--spin)) scale(1.25);opacity:0}
-}
+
 @media(max-width:980px){
  .stage{gap:12px}
- .map{width:min(100%,500px);flex:0 1 500px}
+ .map{width:min(100%,485px);flex:0 1 485px}
  .sidebar{width:265px;flex-basis:265px}
  .brand-logo{width:175px;max-height:146px}
  .legend article{padding:14px}
  .legend article strong{font-size:17px}
  .legend article span{font-size:14px}
+}
+@media(max-height:530px) and (min-width:760px){
+ .stage{gap:23px}
+ .map{width:min(100%,425px);flex:0 1 425px}
+ .sidebar{width:300px;flex-basis:300px;gap:6px}
+ .brand-logo{width:162px;max-height:128px;margin:0 auto 3px}
+ .legend{gap:7px}
+ .legend article{padding:10px 13px;border-radius:12px}
+ .legend article strong{font-size:18px;margin-bottom:4px}
+ .legend article span{font-size:15px}
 }
 @media(max-width:740px){
  .stage{flex-direction:column;gap:10px}
@@ -167,9 +178,9 @@ body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background
  .legend article{flex:1;min-width:145px;padding:10px}
  .legend article strong{font-size:16px}
  .legend article span{font-size:13px}
- .panel{padding:8px}
+ .panel{padding:0}
 }
-@media(prefers-reduced-motion:reduce){.party{animation:none!important;display:none!important}}
+
 </style></head><body>
 <div class="panel">
 <div class="stage"><div class="map" aria-label="Province outline and colour-coded initiation sites">
@@ -184,7 +195,7 @@ body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background
   <article id="cardIntervention" class="intervention" hidden><strong><i class="swatch" style="background:#ce142b"></i>Intervention</strong><span id="interventionName"></span></article>
   <article id="cardControl" class="control" hidden><strong><i class="swatch" style="background:#828b94"></i>Control</strong><span id="controlName"></span></article>
   <article><strong><i class="swatch" style="background:#156082"></i>Non-study area</strong><span id="labelNon"></span></article>
-</div></div></div><div class="celebration" id="celebration" aria-hidden="true"></div></div>
+</div></div></div></div>
 <script>
 const cfg=APP_CONFIG;
 const initialPurple="#a02b93",initialGreen="#4ea72e",nonStudyBlue="#156082";
@@ -251,20 +262,50 @@ function flash(redArea){
   // Non-study dots and the blue provincial background never change.
 }
 function celebrate(){
-  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  const sky=document.getElementById('celebration');
-  // Rapid upward party-emoji burst from bottom like celebratory confetti.
-  for(let i=0;i<62;i++){
-    const span=document.createElement('span');span.className='party';
-    span.textContent=i%6===0?'🎊':'🎉';
-    span.style.left=(3+Math.random()*94)+'%';
-    span.style.fontSize=(37+Math.random()*25)+'px';
-    span.style.setProperty('--delay',Math.round(Math.random()*240)+'ms');
-    span.style.setProperty('--time',Math.round(820+Math.random()*450)+'ms');
-    span.style.setProperty('--sway',(Math.random()*140-70)+'px');
-    span.style.setProperty('--spin',(Math.random()*1080-540)+'deg');
-    sky.appendChild(span);
-    span.addEventListener('animationend',()=>span.remove(),{once:true});
+  if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+  // Streamlit components.html runs inside an iframe. Render the particles in
+  // the parent page's viewport instead of inside the iframe's clipped box.
+  // Streamlit's srcdoc iframe allows scripts and same-origin access.
+  let hostDoc=document,hostWindow=window;
+  try{
+    if(window.parent && window.parent!==window && window.parent.document.body){
+      hostDoc=window.parent.document;hostWindow=window.parent;
+    }
+  }catch(_err){ /* Respect iframe isolation; use the local viewport as fallback. */ }
+  const layer=hostDoc.createElement('div');
+  layer.setAttribute('aria-hidden','true');
+  layer.style.cssText='position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:2147483000';
+  hostDoc.body.appendChild(layer);
+  const width=hostWindow.innerWidth;
+  const height=hostWindow.innerHeight;
+  const particleCount=52;
+  let remaining=particleCount;
+  for(let i=0;i<particleCount;i++){
+    const el=hostDoc.createElement('span');
+    el.textContent=(i%7===0)?'🎊':'🎉';
+    el.style.cssText='position:absolute;bottom:-76px;left:50%;opacity:0;white-space:nowrap;line-height:1;will-change:transform,opacity;';
+    el.style.fontSize=(42+Math.random()*23)+'px';
+    const launchOffset=(Math.random()-.5)*110;
+    const lateral=(Math.random()-.5)*Math.min(width*.90,1100);
+    const drift=-(height+150+Math.random()*100);
+    const spin=(Math.random()-.5)*1100;
+    layer.appendChild(el);
+    const animation=el.animate([
+      {transform:`translate3d(calc(-50% + ${launchOffset}px),20px,0) rotate(-18deg) scale(.65)`,opacity:0,offset:0},
+      {transform:`translate3d(calc(-50% + ${launchOffset+lateral*.18}px),${drift*.18}px,0) rotate(${spin*.2}deg) scale(1)`,opacity:1,offset:.16},
+      {transform:`translate3d(calc(-50% + ${launchOffset+lateral*.82}px),${drift*.80}px,0) rotate(${spin*.75}deg) scale(1.12)`,opacity:1,offset:.78},
+      {transform:`translate3d(calc(-50% + ${launchOffset+lateral}px),${drift}px,0) rotate(${spin}deg) scale(1.22)`,opacity:0,offset:1},
+    ],{
+      duration:2700+Math.random()*1200,
+      delay:Math.random()*650,
+      easing:'cubic-bezier(.16,.65,.29,1)',
+      fill:'forwards',
+    });
+    animation.finished.catch(()=>{}).finally(()=>{
+      el.remove();
+      remaining--;
+      if(remaining===0)layer.remove();
+    });
   }
 }
 function finish(){
@@ -292,22 +333,20 @@ if(cfg.winner){
 }
 </script></body></html>
 """
-components.html(html.replace("APP_CONFIG", config), height=640, scrolling=False)
+components.html(html.replace("APP_CONFIG", config), height=665, scrolling=False)
 
 # One permanent session-level draw, with the primary CTA underneath the map.
 # Omitting the button after the draw prevents repeat allocations without a reset.
 if st.session_state.allocation is None:
-    left, centre, right = st.columns([1, 1, 1])
-    with centre:
-        if st.button("Randomise", type="primary", use_container_width=False):
-            winner = "A" if secrets.randbelow(2) == 0 else "B"
-            st.session_state.allocation = {
-                "intervention": winner,
-                "control": "B" if winner == "A" else "A",
-                "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-                "site_counts": counts,
-            }
-            st.rerun()
+    if st.button("Randomise", type="primary", use_container_width=True):
+        winner = "A" if secrets.randbelow(2) == 0 else "B"
+        st.session_state.allocation = {
+            "intervention": winner,
+            "control": "B" if winner == "A" else "A",
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "site_counts": counts,
+        }
+        st.rerun()
 
 st.caption(
     "Visual demonstration only: this is not an audited or persistent clinical-trial allocation system."

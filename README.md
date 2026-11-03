@@ -16,12 +16,12 @@ The external provincial outline and site classifications are unchanged. The **gr
 
 ## Presentation-friendly interface and randomisation
 
-- A compact layout intended for **16:9 projector screens**, with larger area labels and the user-supplied **animated DiSrupT RR-TB GIF logo** in the map's top-right corner.
-- A large, glossy red **Randomise** button with a silver rim and raised circular appearance, based on the supplied STAPLES Easy-button reference. It appears below the map.
+- A **white, borderless page** intended for **16:9 projector screens** (including a compact 720p layout), with large area labels and the user-supplied **animated DiSrupT RR-TB GIF logo** above the legend at the top right.
+- A **full-width, glossy red rectangular Randomise button** with large projection-friendly text, rounded corners and a restrained silver rim, inspired by the STAPLES Easy-button finish rather than its circular shape. It appears directly below the map and legend.
 - The initial map shows **Study area A purple**, **Study area B green**, and the **non-study area blue**.
 - Clicking Randomise makes a single secure 50:50 draw (`secrets.randbelow(2)`) before the 15-second visual animation. The two study areas and their site dots alternate **red intervention** and **grey control**, slowing towards the selected result.
 - The legend switches from study-area labels to **Intervention (red)** and **Control (grey)** during the animation and shows the winning study-area labels at the end. The non-study area and its **11 blue sites** remain unchanged throughout.
-- The finish triggers a short **fast upward burst of large 🎉 party emojis**. Reduced-motion preferences are respected.
+- The finish triggers a **slower 2.7–3.9 second burst of large 🎉 party emojis**, launched from the **bottom centre of the entire browser viewport** and spreading upward and outward (not clipped to the map frame). Reduced-motion preferences are respected. In Streamlit, the map iframe uses same-origin parent document access for this browser-level visual effect, with a local iframe fallback if access is unavailable.
 - Reset, JSON download, the raw site data table, the animation status heading and the map footnote are not shown. The button disappears after a draw, preventing a repeat draw in the same session.
 
 ## Source files
