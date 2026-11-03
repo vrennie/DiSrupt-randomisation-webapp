@@ -17,7 +17,7 @@ The external provincial outline and site classifications are unchanged. The **gr
 ## Presentation-friendly interface and randomisation
 
 - A **white, borderless page** intended for **16:9 projector screens** (including a compact 720p layout), with large area labels and the user-supplied **animated DiSrupT RR-TB GIF logo** above the legend at the top right.
-- A **full-width, glossy red rectangular Randomise button** with large projection-friendly text, rounded corners and a restrained silver rim, inspired by the STAPLES Easy-button finish rather than its circular shape. It appears directly below the map and legend.
+- A **full-width, clean dark-teal rectangular Randomise button** with rounded corners and an oversized, projector-friendly label (including the nested Streamlit text element). It appears directly below the map and legend.
 - The initial map shows **Study area A purple**, **Study area B green**, and the **non-study area blue**.
 - Clicking Randomise makes a single secure 50:50 draw (`secrets.randbelow(2)`) before the 15-second visual animation. The two study areas and their site dots alternate **red intervention** and **grey control**, slowing towards the selected result.
 - The legend switches from study-area labels to **Intervention (red)** and **Control (grey)** during the animation and shows the winning study-area labels at the end. The non-study area and its **11 blue sites** remain unchanged throughout.
