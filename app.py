@@ -134,9 +134,7 @@ div.stButton > button[kind="primary"]:focus-visible {outline:3px solid #6d9da8!i
     unsafe_allow_html=True,
 )
 
-# The animated project logo already appears beside the legend.
-st.title("Randomisation")
-
+# The countdown replaces the static page heading.
 winner = st.session_state.allocation["intervention"] if st.session_state.allocation else None
 config = json.dumps({
     "winner": winner,
@@ -235,6 +233,7 @@ document.getElementById('outline').src=cfg.outline;
 document.getElementById('brand').src=cfg.logo;
 const groups={A:[],B:[],non_study:[]};
 const shaded={};
+let stopCountdown=()=>{};
 function blendWithWhite(hex,opacity){
   // Opaque equivalent of a semi-transparent fill on white. This prevents
   // the blue fallback beneath A and B from changing their perceived colours.
@@ -291,6 +290,51 @@ function flash(redArea){
   paint('B',redArea==='B'?interventionRed:controlGrey,redArea==='B');
   // Non-study dots and the blue provincial background never change.
 }
+// Top-centred countdown, shown only when the last ten seconds remain.
+function startCountdown(totalMs){
+  let hostDoc=document;
+  try{
+    if(window.parent && window.parent!==window && window.parent.document.body){
+      hostDoc=window.parent.document;
+    }
+  }catch(_e){ /* Fall back to this frame. */ }
+  const display=hostDoc.createElement('div');
+  display.setAttribute('role','timer');
+  display.setAttribute('aria-label','Seconds remaining');
+  display.setAttribute('aria-live','off');
+  display.style.cssText=[
+    'position:fixed','top:8px','left:50%','transform:translateX(-50%)',
+    'z-index:2147482999','pointer-events:none','visibility:hidden',
+    'font-family:system-ui,-apple-system,Segoe UI,sans-serif',
+    'font-size:clamp(62px,7.2vw,112px)','font-weight:900',
+    'line-height:1','font-variant-numeric:tabular-nums','color:#183c46',
+    'text-shadow:0 3px 12px rgba(255,255,255,.95)',
+    'min-width:150px','text-align:center'
+  ].join(';');
+  hostDoc.body.appendChild(display);
+  const start=performance.now();
+  let previous=null,active=true;
+  function frame(){
+    if(!active)return;
+    const remaining=totalMs-(performance.now()-start);
+    const n=Math.ceil(remaining/1000);
+    if(n>=1 && n<=10 && n!==previous){
+      previous=n;
+      display.textContent=String(n);
+      display.style.visibility='visible';
+      if(typeof display.animate==='function'){
+        display.animate([
+          {opacity:.45,transform:'translateX(-50%) scale(.85)'},
+          {opacity:1,transform:'translateX(-50%) scale(1)'}
+        ],{duration:330,easing:'ease-out'});
+      }
+    }
+    if(remaining>0){requestAnimationFrame(frame);}
+    else{display.remove();}
+  }
+  requestAnimationFrame(frame);
+  return ()=>{active=false;display.remove();};
+}
 function celebrate(){
   if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
   // Streamlit components.html runs inside an iframe. Render the particles in
@@ -339,6 +383,7 @@ function celebrate(){
   }
 }
 function finish(){
+  stopCountdown();
   flash(cfg.winner);
   const loser=cfg.winner==='A'?'B':'A';
   document.getElementById('interventionName').textContent='Study area '+cfg.winner+' · '+cfg.counts[cfg.winner]+' sites';
@@ -349,6 +394,7 @@ initial();
 if(cfg.winner){
   showRoles();
   const steps=23,settleMs=500,totalMs=15000;
+  stopCountdown=startCountdown(totalMs);
   const rawDelays=Array.from({length:steps-1},(_,i)=>0.08+Math.pow(i/(steps-2),2.7));
   const scale=(totalMs-settleMs)/rawDelays.reduce((a,b)=>a+b,0);
   let i=0;
