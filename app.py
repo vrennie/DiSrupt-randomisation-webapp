@@ -83,7 +83,17 @@ div.stButton>button[kind="primary"] p,.st-key-randomise button span{
  color:#fff!important;line-height:1.05!important;margin:0!important
 }
 .st-key-randomise button:hover,[data-testid="stButton"]>button[kind="primary"]:hover{background:#285564!important}
-.st-key-map_visual iframe,.st-key-control_footer iframe{display:block;border:0!important}
+.st-key-map_initial iframe,.st-key-map_animated iframe,.st-key-control_footer iframe{display:block;border:0!important}
+/* The two-map and one-map views require different heights. Keeping both
+   explicit avoids Streamlit measuring the empty map before JS builds it. */
+@media(max-width:980px){
+ .st-key-map_initial iframe{height:555px!important}
+ .st-key-map_animated iframe{height:530px!important}
+}
+@media(max-width:680px){
+ .st-key-map_initial iframe{height:1140px!important}
+ .st-key-map_animated iframe{height:815px!important}
+}
 @media(max-height:800px) and (min-width:1000px){
  .st-key-randomise button,[data-testid="stButton"]>button[kind="primary"]{height:88px!important;min-height:88px!important}
  .st-key-randomise button p,[data-testid="stButton"]>button[kind="primary"] p{font-size:3.3rem!important}
@@ -346,8 +356,13 @@ if(selected){
 }
 </script></body></html>
 """
-with st.container(key="map_visual"):
-    st.iframe(html.replace("APP_CONFIG", config), height="content")
+# The initial two-map view is taller than the single-map reveal. A reserved
+# iframe height is essential: content-height auto sizing measured the empty
+# JavaScript-created map and clipped the two maps under the button.
+map_height = 480 if winner is None else 450
+map_key = "map_initial" if winner is None else "map_animated"
+with st.container(key=map_key):
+    st.iframe(html.replace("APP_CONFIG", config), height=map_height)
 
 # The cryptographically secure 50:50 allocation is drawn on the backend
 # exactly once per Streamlit session, when the native button is clicked.
