@@ -12,7 +12,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 st.set_page_config(page_title="DiSrupT | Randomisation", page_icon="🎯", layout="wide")
 ASSETS = Path(__file__).resolve().parent / "assets"
@@ -86,7 +85,6 @@ div.stButton>button[kind="primary"] p,.st-key-randomise button span{
 .st-key-randomise button:hover,[data-testid="stButton"]>button[kind="primary"]:hover{background:#285564!important}
 .st-key-map_visual iframe,.st-key-control_footer iframe{display:block;border:0!important}
 @media(max-height:800px) and (min-width:1000px){
- .st-key-map_visual iframe{height:460px!important}
  .st-key-randomise button,[data-testid="stButton"]>button[kind="primary"]{height:88px!important;min-height:88px!important}
  .st-key-randomise button p,[data-testid="stButton"]>button[kind="primary"] p{font-size:3.3rem!important}
 }
@@ -349,7 +347,7 @@ if(selected){
 </script></body></html>
 """
 with st.container(key="map_visual"):
-    components.html(html.replace("APP_CONFIG", config), height=690 if winner else 620, scrolling=False)
+    st.iframe(html.replace("APP_CONFIG", config), height="content")
 
 # The cryptographically secure 50:50 allocation is drawn on the backend
 # exactly once per Streamlit session, when the native button is clicked.
@@ -383,7 +381,7 @@ footer_html = (
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:#fff;overflow:hidden}
     .footer{display:flex;flex-direction:column;align-items:center;
-            justify-content:flex-start;width:100%;height:100%;gap:2px;padding:0 8px}
+            justify-content:flex-start;width:100%;height:auto;gap:2px;padding:0 8px}
     .countdown{position:relative;width:100%;height:90px;flex:0 0 90px;
                display:flex;justify-content:center;align-items:center;
                font-variant-numeric:tabular-nums}
@@ -421,10 +419,15 @@ footer_html = (
           }
         }
         if (next > 0) requestAnimationFrame(frame);
+        else {
+          // Remove the 90px countdown row once the allocation is revealed.
+          const timer = value.closest('.countdown');
+          if (timer) timer.remove();
+        }
       }
       requestAnimationFrame(frame);
     })();
     </script></body></html>"""
 )
 with st.container(key="control_footer"):
-    components.html(footer_html, height=235 if has_allocation else 145, scrolling=False)
+    st.iframe(footer_html, height="content")
