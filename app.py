@@ -378,7 +378,7 @@ footer_html = (
     .count-number{position:absolute;left:50%;top:50%;opacity:0;line-height:1;
                   color:#183c46;font-family:system-ui,-apple-system,Segoe UI,sans-serif;
                   font-size:clamp(70px,7vw,98px);font-weight:900;
-                  animation:tick 1s linear both}
+                  animation:tick 1s linear forwards}
     @keyframes tick{
        0%{opacity:1;transform:translate(-50%,-50%) scale(.86)}
        16%,99.9%{opacity:1;transform:translate(-50%,-50%) scale(1)}
