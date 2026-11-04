@@ -409,7 +409,3 @@ st.markdown(
     f'alt="DiSrupT RR-TB partner organisations" /></div>',
     unsafe_allow_html=True,
 )
-
-st.caption(
-    "Visual demonstration only: this is not an audited or persistent clinical-trial allocation system."
-)
