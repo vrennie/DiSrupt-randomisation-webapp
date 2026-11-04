@@ -87,12 +87,12 @@ div.stButton>button[kind="primary"] p,.st-key-randomise button span{
 /* The two-map and one-map views require different heights. Keeping both
    explicit avoids Streamlit measuring the empty map before JS builds it. */
 @media(max-width:980px){
- .st-key-map_initial iframe{height:555px!important}
- .st-key-map_animated iframe{height:530px!important}
+ .st-key-map_initial iframe{height:510px!important}
+ .st-key-map_animated iframe{height:510px!important}
 }
 @media(max-width:680px){
- .st-key-map_initial iframe{height:1140px!important}
- .st-key-map_animated iframe{height:815px!important}
+ .st-key-map_initial iframe{height:1080px!important}
+ .st-key-map_animated iframe{height:760px!important}
 }
 @media(max-height:800px) and (min-width:1000px){
  .st-key-randomise button,[data-testid="stButton"]>button[kind="primary"]{height:88px!important;min-height:88px!important}
