@@ -128,8 +128,11 @@ html,body{margin:0;padding:0;background:#fff;color:#18313e;font-family:system-ui
 .legend-card span{display:block;font-size:14px;color:#546c78}
 .swatch{display:inline-block;width:17px;height:17px;margin-right:8px;border-radius:50%;vertical-align:middle}
 .brand{max-width:152px;max-height:114px;object-fit:contain;display:block;mix-blend-mode:multiply}
+/* The single-map flex item needs an explicit basis: its SVG/image are absolute
+   and otherwise contribute no intrinsic width, collapsing the map to zero. */
 .result-grid{display:flex;align-items:center;justify-content:center;gap:34px}
-.result-grid .map-box{width:min(100%,540px)}
+.result-grid .choice{flex:0 1 540px;width:min(100%,540px);min-width:0}
+.result-grid .map-box{width:100%;max-width:540px}
 .sidebar{width:320px;flex:0 0 320px;display:flex;flex-direction:column;gap:14px;align-items:center}
 .sidebar .brand{max-width:224px;max-height:172px}
 .sidebar .legend{display:flex;flex-direction:column;gap:13px;width:100%}
@@ -148,7 +151,8 @@ html,body{margin:0;padding:0;background:#fff;color:#18313e;font-family:system-ui
  .legend-card span{font-size:12px}
  .brand{max-width:118px;max-height:82px}
  .bottom-row{margin-top:7px}
- .result-grid .map-box{width:min(100%,368px)}
+ .result-grid .choice{flex-basis:368px;width:min(100%,368px)}
+ .result-grid .map-box{width:100%;max-width:368px}
  .sidebar{width:290px;flex-basis:290px;gap:8px}
  .sidebar .brand{max-width:150px;max-height:104px}
  .sidebar .legend-card{padding:11px 13px}
@@ -164,7 +168,8 @@ html,body{margin:0;padding:0;background:#fff;color:#18313e;font-family:system-ui
  .legend-card span{font-size:12px}
  .brand{max-width:115px}
  .result-grid{gap:10px}
- .result-grid .map-box{width:min(100%,425px)}
+ .result-grid .choice{flex-basis:425px;width:min(100%,425px)}
+ .result-grid .map-box{width:100%;max-width:425px}
  .sidebar{width:235px;flex-basis:235px}
  .sidebar .brand{max-width:145px}
  .sidebar .legend-card strong{font-size:17px}
@@ -175,6 +180,8 @@ html,body{margin:0;padding:0;background:#fff;color:#18313e;font-family:system-ui
  .or{font-size:23px}
  .bottom-row{flex-direction:column;gap:7px}
  .result-grid{flex-direction:column}
+ .result-grid .choice{width:min(100%,425px);flex:none}
+ .result-grid .map-box{width:100%;max-width:425px}
  .sidebar{width:100%;flex:initial}
  .sidebar .legend{flex-direction:row;flex-wrap:wrap}
  .sidebar .legend-card{width:auto;min-width:145px;flex:1}
