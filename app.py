@@ -17,6 +17,11 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="DiSrupT | Randomisation", page_icon="🎯", layout="wide")
 ASSETS = Path(__file__).resolve().parent / "assets"
 
+@st.cache_data(show_spinner=False)
+def asset_base64(name: str) -> str:
+    """Encode static image assets once and reuse them across script reruns."""
+    return base64.b64encode((ASSETS / name).read_bytes()).decode("ascii")
+
 
 def get_sites():
     with (ASSETS / "sites.csv").open(newline="", encoding="utf-8") as file:
@@ -39,8 +44,8 @@ def get_sites():
 sites = get_sites()
 counts = {area: sum(site["area"] == area for site in sites) for area in ("A", "B", "non_study")}
 outline_svg = (ASSETS / "province_outline.svg").read_bytes()
-outline_b64 = base64.b64encode(outline_svg).decode("ascii")
-logo_b64 = base64.b64encode((ASSETS / "Disrupt_scissor_cut_v2.gif").read_bytes()).decode("ascii")
+outline_b64 = asset_base64("province_outline.svg")
+logo_b64 = asset_base64("Disrupt_scissor_cut_v2.gif")
 # The province boundary is used as an always-filled blue base. Thus any area
 # not occupied by A or B is non-study, never a white/unclassified gap.
 import xml.etree.ElementTree as ET
@@ -57,7 +62,7 @@ if set(area_envelopes.get("paths", {})) != {"A", "B", "non_study"}:
 if "allocation" not in st.session_state:
     st.session_state.allocation = None
 
-st.markdown(
+st.html(
     """
 <style>
 /* One seamless, white presentation canvas, without a framed map card. */
@@ -140,8 +145,6 @@ div.stButton > button[kind="primary"]:focus-visible {outline:3px solid #6d9da8!i
   div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] span {font-size:2.6rem!important;}
 }
 </style>
-""",
-    unsafe_allow_html=True,
 )
 
 # The countdown replaces the static page heading.
@@ -175,8 +178,8 @@ body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background
 .brand-logo{width:232px;max-height:188px;object-fit:contain;display:block;margin:0 auto 8px;mix-blend-mode:multiply}
 .legend{width:100%;display:flex;flex-direction:column;gap:12px}
 .legend article{border:1px solid #e0e8ed;border-radius:15px;background:#fafcfd;padding:16px 18px}
-.legend article.intervention{border-color:#d93c4a;background:#fff1f3}
-.legend article.control{border-color:#88919b;background:#f2f4f6}
+.legend article.intervention{border-color:#ae90bf;background:#f5eff8}
+.legend article.control{border-color:#a4a7d2;background:#f1f2fa}
 .legend article strong{display:block;font-size:20px;line-height:1.3;margin-bottom:6px}
 .legend article span{display:block;color:#516b7a;font-size:17px;line-height:1.35}
 .legend article span:empty{display:none}
@@ -230,14 +233,14 @@ body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background
   <div class="legend">
   <article id="cardA"><strong><i class="swatch" id="swatchA"></i>Study area A</strong><span id="labelA"></span></article>
   <article id="cardB"><strong><i class="swatch" id="swatchB"></i>Study area B</strong><span id="labelB"></span></article>
-  <article id="cardIntervention" class="intervention" hidden><strong><i class="swatch" style="background:#ce142b"></i>Intervention</strong><span id="interventionName"></span></article>
-  <article id="cardControl" class="control" hidden><strong><i class="swatch" style="background:#828b94"></i>Control</strong><span id="controlName"></span></article>
+  <article id="cardIntervention" class="intervention" hidden><strong><i class="swatch" style="background:#7c4f96"></i>Intervention</strong><span id="interventionName"></span></article>
+  <article id="cardControl" class="control" hidden><strong><i class="swatch" style="background:#6266ab"></i>Control</strong><span id="controlName"></span></article>
   <article><strong><i class="swatch" style="background:#156082"></i>Non-study area</strong><span id="labelNon"></span></article>
 </div></div></div></div>
 <script>
 const cfg=APP_CONFIG;
 const initialPurple="#a02b93",initialGreen="#4ea72e",nonStudyBlue="#156082";
-const interventionRed="#ce142b",controlGrey="#828b94";
+const interventionPurple="#7c4f96",controlBlue="#6266ab";
 const svg=document.getElementById('sites');
 document.getElementById('outline').src=cfg.outline;
 document.getElementById('brand').src=cfg.logo;
@@ -294,9 +297,9 @@ function showRoles(){
   document.getElementById('cardIntervention').hidden=false;
   document.getElementById('cardControl').hidden=false;
 }
-function flash(redArea){
-  paint('A',redArea==='A'?interventionRed:controlGrey,redArea==='A');
-  paint('B',redArea==='B'?interventionRed:controlGrey,redArea==='B');
+function flash(interventionArea){
+  paint('A',interventionArea==='A'?interventionPurple:controlBlue,interventionArea==='A');
+  paint('B',interventionArea==='B'?interventionPurple:controlBlue,interventionArea==='B');
   // Non-study dots and the blue provincial background never change.
 }
 function celebrate(){
@@ -362,8 +365,8 @@ if(cfg.winner){
   let i=0;
   // Python performed the 50:50 draw already. This is a non-random visual reveal.
   function tick(){
-    const red=(i%2===0)?cfg.winner:(cfg.winner==='A'?'B':'A');
-    flash(red);
+    const interventionArea=(i%2===0)?cfg.winner:(cfg.winner==='A'?'B':'A');
+    flash(interventionArea);
     if(i===steps-1){setTimeout(finish,settleMs);return}
     setTimeout(tick,rawDelays[i++]*scale);
   }
@@ -392,20 +395,16 @@ else:
         f'<span class="countdown-second" style="animation-delay:{15 - n}s">{n}</span>'
         for n in range(15, 0, -1)
     )
-    st.markdown(
+    st.html(
         f'<div class="randomise-countdown" role="timer" '
         f'aria-label="15-second countdown">{seconds}</div>',
-        unsafe_allow_html=True,
     )
 
 # The footer is present in both states and does not depend on Streamlit's
 # ImageList component (which failed to import on the deployed website).
-partner_png_b64 = base64.b64encode(
-    (ASSETS / "disrupt_partners_compact.png").read_bytes()
-).decode("ascii")
-st.markdown(
+partner_png_b64 = asset_base64("disrupt_partners_compact.png")
+st.html(
     f'<div class="partner-footer"><img '
     f'src="data:image/png;base64,{partner_png_b64}" '
     f'alt="DiSrupT RR-TB partner organisations" /></div>',
-    unsafe_allow_html=True,
 )
