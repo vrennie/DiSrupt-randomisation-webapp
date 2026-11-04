@@ -86,7 +86,7 @@ div.stButton>button[kind="primary"] p,.st-key-randomise button span{
 .st-key-randomise button:hover,[data-testid="stButton"]>button[kind="primary"]:hover{background:#285564!important}
 .st-key-map_visual iframe,.st-key-control_footer iframe{display:block;border:0!important}
 @media(max-height:800px) and (min-width:1000px){
- .st-key-map_visual iframe{height:418px!important}
+ .st-key-map_visual iframe{height:460px!important}
  .st-key-randomise button,[data-testid="stButton"]>button[kind="primary"]{height:88px!important;min-height:88px!important}
  .st-key-randomise button p,[data-testid="stButton"]>button[kind="primary"] p{font-size:3.3rem!important}
 }
@@ -113,153 +113,164 @@ html = r"""
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/>
 <style>
 *{box-sizing:border-box}
-body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background:transparent;color:#18313e}
-/* No card: the entire Streamlit page is the white canvas. */
-.panel{position:relative;padding:0;border:0;border-radius:0;background:transparent;overflow:visible}
-.stage{display:flex;align-items:center;justify-content:center;gap:30px}
-.map{position:relative;aspect-ratio:918/1038;width:min(100%,570px);flex:0 1 570px}
-.map img,.map svg{position:absolute;inset:0;width:100%;height:100%}
-.area-shade{fill-opacity:1;stroke-width:1.8;stroke-opacity:.56;stroke-linejoin:round;fill-rule:evenodd;transition:fill .13s linear,stroke .13s linear;pointer-events:none}
-.marker{stroke:#10232b;stroke-width:2.6;transition:fill .13s linear,r .13s linear,stroke .13s linear;cursor:help}
-.marker.pulse{r:15;stroke-width:2.9}
-.marker.outside{opacity:.93;stroke:#163843}
-.sidebar{width:340px;flex:0 0 340px;display:flex;flex-direction:column;align-items:center;gap:10px}
-.brand-logo{width:232px;max-height:188px;object-fit:contain;display:block;margin:0 auto 8px;mix-blend-mode:multiply}
-.legend{width:100%;display:flex;flex-direction:column;gap:12px}
-.legend article{border:1px solid #e0e8ed;border-radius:15px;background:#fafcfd;padding:16px 18px}
-.legend article.intervention{border-color:#ae90bf;background:#f5eff8}
-.legend article.control{border-color:#a4a7d2;background:#f1f2fa}
-.legend article strong{display:block;font-size:20px;line-height:1.3;margin-bottom:6px}
-.legend article span{display:block;color:#516b7a;font-size:17px;line-height:1.35}
-.legend article span:empty{display:none}
-.swatch{display:inline-block;vertical-align:middle;width:18px;height:18px;border-radius:50%;margin-right:10px}
-[hidden]{display:none !important}
-
+html,body{margin:0;padding:0;background:#fff;color:#18313e;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+.sheet{width:100%;padding:4px 6px 0;position:relative}
+.choices{display:grid;grid-template-columns:minmax(0,1fr) 70px minmax(0,1fr);gap:12px;align-items:center}
+.choice{min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px}
+.choice-label{font-weight:800;font-size:clamp(14px,1.55vw,20px);text-align:center;color:#183c46;min-height:25px}
+.map-box{position:relative;width:min(100%,375px);aspect-ratio:918/1038;flex-shrink:0}
+.map-box img,.map-box svg{position:absolute;inset:0;width:100%;height:100%}
+.or{text-align:center;font-size:clamp(26px,3vw,42px);font-weight:900;color:#76848e}
+.bottom-row{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:10px}
+.legend{display:flex;gap:10px;align-items:stretch;justify-content:center;flex-wrap:wrap}
+.legend-card{padding:11px 16px;border:1px solid #dce4e9;border-radius:13px;background:#fafcfd;min-width:174px}
+.legend-card strong{font-size:17px;line-height:1.4;display:block;white-space:nowrap}
+.legend-card span{display:block;font-size:14px;color:#546c78}
+.swatch{display:inline-block;width:17px;height:17px;margin-right:8px;border-radius:50%;vertical-align:middle}
+.brand{max-width:152px;max-height:114px;object-fit:contain;display:block;mix-blend-mode:multiply}
+.result-grid{display:flex;align-items:center;justify-content:center;gap:34px}
+.result-grid .map-box{width:min(100%,540px)}
+.sidebar{width:320px;flex:0 0 320px;display:flex;flex-direction:column;gap:14px;align-items:center}
+.sidebar .brand{max-width:224px;max-height:172px}
+.sidebar .legend{display:flex;flex-direction:column;gap:13px;width:100%}
+.sidebar .legend-card{padding:15px 18px;min-width:0;width:100%}
+.sidebar .legend-card strong{font-size:21px}
+.sidebar .legend-card span{font-size:17px}
+.area-shade{fill-opacity:1;stroke-width:1.8;stroke-opacity:.56;stroke-linejoin:round;fill-rule:evenodd;transition:fill .14s linear,stroke .14s linear;pointer-events:none}
+.marker{stroke:#10232b;stroke-width:2.7;transition:fill .14s linear,r .14s linear,stroke .14s linear;cursor:help}
+.marker.pulse{r:15;stroke-width:3}
+.marker.outside{stroke:#34444c}
+@media(max-height:800px) and (min-width:981px){
+ .map-box{width:min(100%,305px)}
+ .choice-label{font-size:15px;min-height:21px}
+ .legend-card{padding:8px 12px;min-width:151px}
+ .legend-card strong{font-size:15px}
+ .legend-card span{font-size:12px}
+ .brand{max-width:118px;max-height:82px}
+ .bottom-row{margin-top:7px}
+ .result-grid .map-box{width:min(100%,368px)}
+ .sidebar{width:290px;flex-basis:290px;gap:8px}
+ .sidebar .brand{max-width:150px;max-height:104px}
+ .sidebar .legend-card{padding:11px 13px}
+ .sidebar .legend-card strong{font-size:18px}
+ .sidebar .legend-card span{font-size:14px}
+}
 @media(max-width:980px){
- .stage{gap:12px}
- .map{width:min(100%,485px);flex:0 1 485px}
- .sidebar{width:265px;flex-basis:265px}
- .brand-logo{width:175px;max-height:146px}
- .legend article{padding:14px}
- .legend article strong{font-size:17px}
- .legend article span{font-size:14px}
+ .choices{grid-template-columns:minmax(0,1fr) 50px minmax(0,1fr);gap:6px}
+ .map-box{width:min(100%,315px)}
+ .choice-label{font-size:14px}
+ .legend-card{padding:9px 11px;min-width:140px}
+ .legend-card strong{font-size:14px}
+ .legend-card span{font-size:12px}
+ .brand{max-width:115px}
+ .result-grid{gap:10px}
+ .result-grid .map-box{width:min(100%,425px)}
+ .sidebar{width:235px;flex-basis:235px}
+ .sidebar .brand{max-width:145px}
+ .sidebar .legend-card strong{font-size:17px}
+ .sidebar .legend-card span{font-size:13px}
 }
-@media(max-height:530px) and (min-width:760px){
- .stage{gap:23px}
- .map{width:min(100%,425px);flex:0 1 425px}
- .sidebar{width:300px;flex-basis:300px;gap:6px}
- .brand-logo{width:162px;max-height:128px;margin:0 auto 3px}
- .legend{gap:7px}
- .legend article{padding:10px 13px;border-radius:12px}
- .legend article strong{font-size:18px;margin-bottom:4px}
- .legend article span{font-size:15px}
+@media(max-width:680px){
+ .choices{grid-template-columns:1fr;gap:6px}
+ .or{font-size:23px}
+ .bottom-row{flex-direction:column;gap:7px}
+ .result-grid{flex-direction:column}
+ .sidebar{width:100%;flex:initial}
+ .sidebar .legend{flex-direction:row;flex-wrap:wrap}
+ .sidebar .legend-card{width:auto;min-width:145px;flex:1}
 }
-@media(max-width:740px){
- .stage{flex-direction:column;gap:10px}
- .map{flex:auto;width:100%;max-width:315px}
- .sidebar{width:100%;flex:initial;gap:6px}
- .brand-logo{width:112px;max-height:91px;margin:0 auto 2px}
- .legend{width:100%;flex-direction:row;flex-wrap:wrap;gap:8px}
- .legend article{flex:1;min-width:145px;padding:10px}
- .legend article strong{font-size:16px}
- .legend article span{font-size:13px}
- .panel{padding:0}
-}
-
-@media(max-height:530px) and (min-width:760px){
- .map{width:min(100%,365px);flex:0 1 365px}
- .sidebar{width:270px;flex-basis:270px}
- .brand-logo{width:150px;max-height:113px}
-}
-</style></head><body>
-<div class="panel">
-<div class="stage"><div class="map" aria-label="Province outline and colour-coded initiation sites">
-<img id="outline" alt="KwaZulu-Natal provincial outline without internal district boundaries"/>
-<svg id="sites" viewBox="0 0 918 1038" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Initiation sites in Area A, Area B and non-study area"></svg>
-</div>
-<div class="sidebar">
-  <img id="brand" class="brand-logo" alt="Animated DiSrupT RR-TB logo" />
-  <div class="legend">
-  <article id="cardA"><strong><i class="swatch" id="swatchA"></i>Study area A</strong><span id="labelA"></span></article>
-  <article id="cardB"><strong><i class="swatch" id="swatchB"></i>Study area B</strong><span id="labelB"></span></article>
-  <article id="cardIntervention" class="intervention" hidden><strong><i class="swatch" style="background:#7c4f96"></i>Intervention</strong><span id="interventionName"></span></article>
-  <article id="cardControl" class="control" hidden><strong><i class="swatch" style="background:#6266ab"></i>Control</strong><span id="controlName"></span></article>
-  <article><strong><i class="swatch" style="background:#e4313e"></i>Non-study area</strong><span id="labelNon"></span></article>
-</div></div></div></div>
+</style></head><body><main id="sheet" class="sheet"></main>
 <script>
 const cfg=APP_CONFIG;
-const initialPurple="#a02b93",initialGreen="#4ea72e",nonStudyRed="#e4313e";
-const interventionPurple="#7c4f96",controlBlue="#6266ab";
-// Restore large native button styling even if a separate CSS widget is delayed.
-try {
- const parentDoc=window.parent.document;
- if(parentDoc && parentDoc.head && !parentDoc.getElementById('disrupt-page-style')){
-   const sheet=parentDoc.createElement('style');
-   sheet.id='disrupt-page-style';
-   sheet.textContent="\n.stApp,[data-testid=\"stAppViewContainer\"]{background:#fff!important}\n[data-testid=\"stHeader\"]{background:transparent!important}\n.block-container{max-width:1210px!important;padding-top:.1rem!important;padding-bottom:.4rem!important}\n.block-container [data-testid=\"stVerticalBlock\"]{gap:.35rem!important}\n.st-key-randomise button,[data-testid=\"stButton\"]>button[kind=\"primary\"],div.stButton>button[kind=\"primary\"]{\n width:100%!important;max-width:none!important;min-width:0!important;\n display:flex!important;align-items:center!important;justify-content:center!important;\n height:94px!important;min-height:94px!important;padding:10px 24px!important;\n border:2px solid #183c46!important;border-radius:16px!important;\n color:#fff!important;background:#183c46!important;box-shadow:none!important;\n font-family:system-ui,-apple-system,Segoe UI,sans-serif!important;\n font-weight:850!important;font-size:clamp(3rem,5vw,4rem)!important;\n line-height:1.05!important;text-shadow:none!important\n}\n.st-key-randomise button p,[data-testid=\"stButton\"]>button[kind=\"primary\"] p,\ndiv.stButton>button[kind=\"primary\"] p,.st-key-randomise button span{\n font-size:clamp(3rem,5vw,4rem)!important;font-weight:850!important;\n color:#fff!important;line-height:1.05!important;margin:0!important\n}\n.st-key-randomise button:hover,[data-testid=\"stButton\"]>button[kind=\"primary\"]:hover{background:#285564!important}\n.st-key-map_visual iframe,.st-key-control_footer iframe{display:block;border:0!important}\n@media(max-height:800px) and (min-width:1000px){\n .st-key-map_visual iframe{height:418px!important}\n .st-key-randomise button,[data-testid=\"stButton\"]>button[kind=\"primary\"]{height:88px!important;min-height:88px!important}\n .st-key-randomise button p,[data-testid=\"stButton\"]>button[kind=\"primary\"] p{font-size:3.3rem!important}\n}\n@media(max-width:720px){\n .st-key-randomise button,[data-testid=\"stButton\"]>button[kind=\"primary\"]{height:80px!important;min-height:80px!important;border-radius:14px!important}\n .st-key-randomise button p,[data-testid=\"stButton\"]>button[kind=\"primary\"] p{font-size:2.75rem!important}\n}";
-   parentDoc.head.appendChild(sheet);
+const COLORS={intervention:'#7c4f96',control:'#4ea72e',nonstudy:'#969fa8'};
+const ns='http://www.w3.org/2000/svg';
+function makeEl(tag){return document.createElementNS(ns,tag)}
+function legendCard(label,color,sub){
+ const card=document.createElement('article');
+ card.className='legend-card';
+ const strong=document.createElement('strong');
+ const dot=document.createElement('i');
+ dot.className='swatch';dot.style.background=color;strong.appendChild(dot);
+ strong.appendChild(document.createTextNode(label));
+ card.appendChild(strong);
+ if(sub){const line=document.createElement('span');line.textContent=sub;card.appendChild(line);}
+ return card;
+}
+function newMap(id,title){
+ const choice=document.createElement('section');choice.className='choice';
+ if(title){const h=document.createElement('div');h.className='choice-label';h.textContent=title;choice.appendChild(h);}
+ const box=document.createElement('div');box.className='map-box';
+ const img=document.createElement('img');img.src=cfg.outline;img.alt='KwaZulu-Natal outline';
+ const svg=makeEl('svg');svg.setAttribute('id',id);svg.setAttribute('viewBox','0 0 918 1038');
+ svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+ box.appendChild(img);box.appendChild(svg);choice.appendChild(box);
+ const dots={A:[],B:[],non_study:[]};
+ const areas={};
+ function path(d,kind){
+   const p=makeEl('path');p.setAttribute('d',d);p.setAttribute('class',kind);
+   svg.appendChild(p);return p;
  }
-}catch(_error){ /* Streamlit style widget is the fallback. */ }
-const svg=document.getElementById('sites');
-document.getElementById('outline').src=cfg.outline;
-document.getElementById('brand').src=cfg.logo;
-const groups={A:[],B:[],non_study:[]};
-const shaded={};
-function blendWithWhite(hex,opacity){
-  // Opaque equivalent of a semi-transparent fill on white. This prevents
-  // the blue fallback beneath A and B from changing their perceived colours.
-  const parts=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
-  return '#'+parts.map(v=>Math.round(255*(1-opacity)+v*opacity).toString(16).padStart(2,'0')).join('');
+ function blend(color){
+   return '#'+[1,3,5].map(j=>Math.round(255*(1-cfg.areaOpacity)+parseInt(color.slice(j,j+2),16)*cfg.areaOpacity).toString(16).padStart(2,'0')).join('');
+ }
+ const background=path(cfg.provincePath,'area-shade');background.setAttribute('fill',blend(COLORS.nonstudy));background.setAttribute('stroke','none');
+ ['A','B'].forEach(area=>areas[area]=path(cfg.areaPaths[area],'area-shade'));
+ const boundary=path(cfg.provincePath,'province-border');
+ boundary.setAttribute('fill','none');boundary.setAttribute('stroke','#183c46');boundary.setAttribute('stroke-width','3.5');boundary.style.pointerEvents='none';
+ cfg.sites.forEach(site=>{
+   const dot=makeEl('circle');dot.setAttribute('cx',site.x);dot.setAttribute('cy',site.y);
+   dot.setAttribute('r','13');dot.setAttribute('class','marker'+(site.area==='non_study'?' outside':''));
+   const tip=makeEl('title');tip.textContent=site.id+' - '+site.area;
+   dot.appendChild(tip);svg.appendChild(dot);dots[site.area].push(dot);
+ });
+ const paint=(area,color,pulse)=>{
+   if(area!=='non_study'){
+     areas[area].setAttribute('fill',blend(color));
+     areas[area].setAttribute('stroke',color);
+   }
+   dots[area].forEach(dot=>{
+     dot.setAttribute('fill',color);
+     dot.setAttribute('class','marker'+(pulse?' pulse':'')+(area==='non_study'?' outside':''));
+   });
+ };
+ const render=(interventionArea)=>{
+   paint('A',interventionArea==='A'?COLORS.intervention:COLORS.control,interventionArea==='A');
+   paint('B',interventionArea==='B'?COLORS.intervention:COLORS.control,interventionArea==='B');
+   paint('non_study',COLORS.nonstudy,false);
+ };
+ return {choice,render};
 }
-function makePath(d,cls){
-  const p=document.createElementNS('http://www.w3.org/2000/svg','path');
-  p.setAttribute('d',d);p.setAttribute('class',cls);svg.appendChild(p);return p;
+function newLegend(){
+ const legend=document.createElement('div');legend.className='legend';
+ legend.appendChild(legendCard('Intervention',COLORS.intervention,'Purple'));
+ legend.appendChild(legendCard('Control',COLORS.control,'Green'));
+ legend.appendChild(legendCard('Non-study area',COLORS.nonstudy,cfg.counts.non_study+' grey sites'));
+ return legend;
 }
-// The red non-study base guarantees no uncoloured gaps inside the province.
-const nonStudyBase=makePath(cfg.provincePath,'area-shade');
-nonStudyBase.setAttribute('fill',blendWithWhite(nonStudyRed,cfg.areaOpacity));
-nonStudyBase.setAttribute('stroke','none');
-for(const area of ['A','B']) shaded[area]=makePath(cfg.areaPaths[area],'area-shade');
-const border=makePath(cfg.provincePath,'province-border');
-border.setAttribute('fill','none');border.setAttribute('stroke','#183c46');
-border.setAttribute('stroke-width','3.5');border.setAttribute('stroke-linejoin','round');
-border.style.pointerEvents='none';
-for(const site of cfg.sites){
-  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
-  c.setAttribute('cx',site.x);c.setAttribute('cy',site.y);c.setAttribute('r','13');
-  c.setAttribute('class','marker'+(site.area==='non_study'?' outside':''));
-  const title=document.createElementNS('http://www.w3.org/2000/svg','title');
-  title.textContent=site.id+' — '+(site.area==='non_study'?'Non-study':'Study area '+site.area);
-  c.appendChild(title);svg.appendChild(c);groups[site.area].push(c);
+function newLogo(){
+ const brand=document.createElement('img');brand.className='brand';brand.src=cfg.logo;brand.alt='Animated DiSrupT RR-TB logo';
+ return brand;
 }
-const setFill=(list,colour,pulse=false)=>list.forEach(el=>{
-  el.setAttribute('fill',colour);
-  el.setAttribute('class','marker'+(pulse?' pulse':'')+(list===groups.non_study?' outside':''));
-});
-function paint(area,colour,pulse=false){
-  shaded[area].setAttribute('fill',blendWithWhite(colour,cfg.areaOpacity));
-  shaded[area].setAttribute('stroke',colour);
-  setFill(groups[area],colour,pulse);
-}
-function initial(){
-  paint('A',initialPurple);paint('B',initialGreen);
-  setFill(groups.non_study,nonStudyRed);
-  document.getElementById('swatchA').style.background=initialPurple;
-  document.getElementById('swatchB').style.background=initialGreen;
-  document.getElementById('labelA').textContent=cfg.counts.A+' sites';
-  document.getElementById('labelB').textContent=cfg.counts.B+' sites';
-  document.getElementById('labelNon').textContent=cfg.counts.non_study+' red sites';
-}
-function showRoles(){
-  document.getElementById('cardA').hidden=true;
-  document.getElementById('cardB').hidden=true;
-  document.getElementById('cardIntervention').hidden=false;
-  document.getElementById('cardControl').hidden=false;
-}
-function flash(interventionArea){
-  paint('A',interventionArea==='A'?interventionPurple:controlBlue,interventionArea==='A');
-  paint('B',interventionArea==='B'?interventionPurple:controlBlue,interventionArea==='B');
-  // Non-study dots and the red provincial background never change.
+function setup(){
+ const sheet=document.getElementById('sheet');
+ if(!cfg.winner){
+   const choices=document.createElement('div');choices.className='choices';
+   const left=newMap('mapA','Area A: Intervention | Area B: Control');
+   const right=newMap('mapB','Area A: Control | Area B: Intervention');
+   const or=document.createElement('div');or.className='or';or.textContent='OR';
+   choices.appendChild(left.choice);choices.appendChild(or);choices.appendChild(right.choice);
+   sheet.appendChild(choices);
+   const below=document.createElement('div');below.className='bottom-row';
+   below.appendChild(newLegend());below.appendChild(newLogo());sheet.appendChild(below);
+   left.render('A');right.render('B');
+   return null;
+ }
+ const result=document.createElement('div');result.className='result-grid';
+ const single=newMap('mapSingle','');
+ const side=document.createElement('aside');side.className='sidebar';
+ side.appendChild(newLogo());side.appendChild(newLegend());
+ result.appendChild(single.choice);result.appendChild(side);sheet.appendChild(result);
+ return single;
 }
 function celebrate(){
   if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
@@ -308,33 +319,26 @@ function celebrate(){
     });
   }
 }
-function finish(){
-  flash(cfg.winner);
-  const loser=cfg.winner==='A'?'B':'A';
-  document.getElementById('interventionName').textContent='Study area '+cfg.winner+' · '+cfg.counts[cfg.winner]+' sites';
-  document.getElementById('controlName').textContent='Study area '+loser+' · '+cfg.counts[loser]+' sites';
-  celebrate();
-}
-initial();
-if(cfg.winner){
-  showRoles();
-  const steps=23,settleMs=500,totalMs=15000;
-  const rawDelays=Array.from({length:steps-1},(_,i)=>0.08+Math.pow(i/(steps-2),2.7));
-  const scale=(totalMs-settleMs)/rawDelays.reduce((a,b)=>a+b,0);
-  let i=0;
-  // Python performed the 50:50 draw already. This is a non-random visual reveal.
-  function tick(){
-    const interventionArea=(i%2===0)?cfg.winner:(cfg.winner==='A'?'B':'A');
-    flash(interventionArea);
-    if(i===steps-1){setTimeout(finish,settleMs);return}
-    setTimeout(tick,rawDelays[i++]*scale);
-  }
-  tick();
+
+const selected=setup();
+if(selected){
+ const steps=19,settleMs=400,totalMs=10000;
+ const intervals=Array.from({length:steps-1},(_,i)=>0.09+Math.pow(i/(steps-2),2.55));
+ const scale=(totalMs-settleMs)/intervals.reduce((x,y)=>x+y,0);
+ let i=0;
+ function complete(){selected.render(cfg.winner);celebrate();}
+ function tick(){
+   const area=(i%2===0)?cfg.winner:(cfg.winner==='A'?'B':'A');
+   selected.render(area);
+   if(i===steps-1){setTimeout(complete,settleMs);return;}
+   setTimeout(tick,intervals[i++]*scale);
+ }
+ tick();
 }
 </script></body></html>
 """
 with st.container(key="map_visual"):
-    components.html(html.replace("APP_CONFIG", config), height=650, scrolling=False)
+    components.html(html.replace("APP_CONFIG", config), height=555 if winner else 555, scrolling=False)
 
 # The cryptographically secure 50:50 allocation is drawn on the backend
 # exactly once per Streamlit session, when the native button is clicked.
@@ -351,14 +355,14 @@ if st.session_state.allocation is None:
 
 # The countdown and partner logos are rendered in one self-contained HTML
 # iframe, rather than depending on separate Streamlit CSS/HTML elements.
-# This prevents unstyled '151413...' and keeps the logos centered.
+# This prevents unstyled '10987...' and keeps the logos centered.
 has_allocation = st.session_state.allocation is not None
 countdown_markup = ""
 if has_allocation:
     # One DOM element, whose text updates once a second. No stacked spans.
     countdown_markup = (
-        '<div class="countdown" role="timer" aria-label="15 second countdown">'
-        '<span id="countdown-value" class="count-number">15</span></div>'
+        '<div class="countdown" role="timer" aria-label="10 second countdown">'
+        '<span id="countdown-value" class="count-number">10</span></div>'
     )
 
 partner_png_b64 = asset_base64("disrupt_partners_compact.png")
@@ -391,10 +395,10 @@ footer_html = (
       const value = document.getElementById('countdown-value');
       if (!value) return;
       const startTime = performance.now();
-      let previous = 15;
+      let previous = 10;
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       function frame(now) {
-        const next = Math.max(0, Math.ceil((15000 - (now - startTime)) / 1000));
+        const next = Math.max(0, Math.ceil((10000 - (now - startTime)) / 1000));
         if (next !== previous) {
           previous = next;
           value.textContent = next ? String(next) : '';
