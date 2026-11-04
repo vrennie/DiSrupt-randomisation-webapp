@@ -145,6 +145,7 @@ div.stButton > button[kind="primary"]:focus-visible {outline:3px solid #6d9da8!i
   div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] span {font-size:2.6rem!important;}
 }
 </style>
+"""
 )
 
 # The countdown replaces the static page heading.
