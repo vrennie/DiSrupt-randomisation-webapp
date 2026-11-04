@@ -118,8 +118,9 @@ html,body{margin:0;padding:0;background:#fff;color:#18313e;font-family:system-ui
 .choices{display:grid;grid-template-columns:minmax(0,1fr) 70px minmax(0,1fr);gap:12px;align-items:center}
 .choice{min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px}
 .choice-label{font-weight:800;font-size:clamp(14px,1.55vw,20px);text-align:center;color:#183c46;min-height:25px}
-.map-box{position:relative;width:min(100%,375px);aspect-ratio:918/1038;flex-shrink:0}
-.map-box img,.map-box svg{position:absolute;inset:0;width:100%;height:100%}
+.map-box{position:relative;width:100%;max-width:375px;display:block;flex-shrink:0}
+/* SVG is in normal document flow: its own height gives the map a real box. */
+.map-box svg{position:relative;display:block;width:100%;height:auto;aspect-ratio:918/1038;overflow:visible}
 .or{text-align:center;font-size:clamp(26px,3vw,42px);font-weight:900;color:#76848e}
 .bottom-row{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:10px}
 .legend{display:flex;gap:10px;align-items:stretch;justify-content:center;flex-wrap:wrap}
@@ -130,8 +131,8 @@ html,body{margin:0;padding:0;background:#fff;color:#18313e;font-family:system-ui
 .brand{max-width:152px;max-height:114px;object-fit:contain;display:block;mix-blend-mode:multiply}
 /* The single-map flex item needs an explicit basis: its SVG/image are absolute
    and otherwise contribute no intrinsic width, collapsing the map to zero. */
-.result-grid{display:flex;align-items:center;justify-content:center;gap:34px}
-.result-grid .choice{flex:0 1 540px;width:min(100%,540px);min-width:0}
+.result-grid{display:grid;grid-template-columns:minmax(0,540px) 320px;align-items:start;justify-content:center;gap:34px;width:100%}
+.result-grid .choice{width:100%;min-width:0;display:block}
 .result-grid .map-box{width:100%;max-width:540px}
 .sidebar{width:320px;flex:0 0 320px;display:flex;flex-direction:column;gap:14px;align-items:center}
 .sidebar .brand{max-width:224px;max-height:172px}
@@ -151,7 +152,7 @@ html,body{margin:0;padding:0;background:#fff;color:#18313e;font-family:system-ui
  .legend-card span{font-size:12px}
  .brand{max-width:118px;max-height:82px}
  .bottom-row{margin-top:7px}
- .result-grid .choice{flex-basis:368px;width:min(100%,368px)}
+ .result-grid{grid-template-columns:minmax(0,368px) 290px;gap:18px}
  .result-grid .map-box{width:100%;max-width:368px}
  .sidebar{width:290px;flex-basis:290px;gap:8px}
  .sidebar .brand{max-width:150px;max-height:104px}
@@ -168,7 +169,7 @@ html,body{margin:0;padding:0;background:#fff;color:#18313e;font-family:system-ui
  .legend-card span{font-size:12px}
  .brand{max-width:115px}
  .result-grid{gap:10px}
- .result-grid .choice{flex-basis:425px;width:min(100%,425px)}
+ .result-grid{grid-template-columns:minmax(0,425px) 235px;gap:12px}
  .result-grid .map-box{width:100%;max-width:425px}
  .sidebar{width:235px;flex-basis:235px}
  .sidebar .brand{max-width:145px}
@@ -179,8 +180,8 @@ html,body{margin:0;padding:0;background:#fff;color:#18313e;font-family:system-ui
  .choices{grid-template-columns:1fr;gap:6px}
  .or{font-size:23px}
  .bottom-row{flex-direction:column;gap:7px}
- .result-grid{flex-direction:column}
- .result-grid .choice{width:min(100%,425px);flex:none}
+ .result-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+ .result-grid .choice{width:100%;max-width:425px;margin:0 auto}
  .result-grid .map-box{width:100%;max-width:425px}
  .sidebar{width:100%;flex:initial}
  .sidebar .legend{flex-direction:row;flex-wrap:wrap}
@@ -207,10 +208,13 @@ function newMap(id,title){
  const choice=document.createElement('section');choice.className='choice';
  if(title){const h=document.createElement('div');h.className='choice-label';h.textContent=title;choice.appendChild(h);}
  const box=document.createElement('div');box.className='map-box';
- const img=document.createElement('img');img.src=cfg.outline;img.alt='KwaZulu-Natal outline';
+ // Use an in-flow SVG instead of absolute-positioned image/SVG layers.
+ // Absolute-only contents collapsed this map after the Streamlit rerun.
  const svg=makeEl('svg');svg.setAttribute('id',id);svg.setAttribute('viewBox','0 0 918 1038');
+ svg.setAttribute('width','918');svg.setAttribute('height','1038');
  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
- box.appendChild(img);box.appendChild(svg);choice.appendChild(box);
+ svg.style.cssText='display:block;position:relative;width:100%;height:auto;aspect-ratio:918/1038';
+ box.appendChild(svg);choice.appendChild(box);
  const dots={A:[],B:[],non_study:[]};
  const areas={};
  function path(d,kind){
