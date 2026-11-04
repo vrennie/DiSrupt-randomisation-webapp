@@ -349,7 +349,7 @@ if(selected){
 </script></body></html>
 """
 with st.container(key="map_visual"):
-    components.html(html.replace("APP_CONFIG", config), height=555 if winner else 555, scrolling=False)
+    components.html(html.replace("APP_CONFIG", config), height=690 if winner else 620, scrolling=False)
 
 # The cryptographically secure 50:50 allocation is drawn on the backend
 # exactly once per Streamlit session, when the native button is clicked.
