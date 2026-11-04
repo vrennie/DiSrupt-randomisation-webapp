@@ -62,91 +62,39 @@ if set(area_envelopes.get("paths", {})) != {"A", "B", "non_study"}:
 if "allocation" not in st.session_state:
     st.session_state.allocation = None
 
-st.html(
-    """
-<style>
-/* One seamless, white presentation canvas, without a framed map card. */
-.stApp, [data-testid="stAppViewContainer"] {background:#ffffff!important;}
-[data-testid="stHeader"] {background:transparent!important;}
-.block-container {max-width:1210px!important;padding-top:.08rem;padding-bottom:.4rem;}
-h1 {letter-spacing:-.035em;margin-bottom:.05rem;}
-p, .stCaption {margin-bottom:.1rem;}
-/* Keep the map, Randomise/countdown, and partner footer closer together. */
-.block-container [data-testid="stVerticalBlock"]{gap:.45rem!important;}
-/* Plain always-visible footer image; bypasses Streamlit's image-list loader. */
-.partner-footer{display:flex;width:100%;align-items:center;justify-content:center;margin:.15rem auto 0;padding:0;}
-.partner-footer img{display:block;width:100%;max-width:1200px;height:auto;max-height:190px;object-fit:contain;}
-@media(max-height:800px) and (min-width:1000px){.partner-footer img{max-height:112px!important;}}
-@media(max-width:720px){.partner-footer img{max-height:120px!important;}}
-/* The countdown replaces the button in the same full-width slot. */
-.randomise-countdown{display:flex;position:relative;justify-content:center;align-items:center;width:100%;height:98px;min-height:98px;overflow:hidden;font-variant-numeric:tabular-nums}
-.randomise-countdown .countdown-second{position:absolute;opacity:0;display:block;white-space:nowrap;color:#183c46;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:900;font-size:clamp(4.5rem,6.6vw,6rem);line-height:1;animation:count-second 1s linear forwards}
-@keyframes count-second{0%{opacity:1;transform:scale(.84)}15%{opacity:1;transform:scale(1)}99.9%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
-@media(max-height:800px) and (min-width:1000px){.randomise-countdown{height:88px;min-height:88px}.randomise-countdown .countdown-second{font-size:5rem}}
-@media(max-width:720px){.randomise-countdown{height:82px;min-height:82px}.randomise-countdown .countdown-second{font-size:4.2rem}}
-@media(prefers-reduced-motion:reduce){.randomise-countdown .countdown-second{animation-name:count-second-static}}
-@keyframes count-second-static{0%,99.9%{opacity:1;transform:none}100%{opacity:0;transform:none}}
-/* Projector-friendly button: quiet visual design, bold oversized label. */
-div.stButton {display:block;width:100%;}
-div.stButton > button[kind="primary"] {
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    width:100%!important;
-    max-width:none!important;
-    min-width:0!important;
-    min-height:98px!important;
-    height:98px!important;
-    padding:12px 24px!important;
-    border-radius:16px!important;
-    border:2px solid #183c46!important;
-    background:#183c46!important;
-    color:#ffffff!important;
-    font-weight:800!important;
-    font-size:clamp(3rem,4.8vw,4rem)!important;
-    line-height:1.05!important;
-    letter-spacing:0!important;
-    box-shadow:none!important;
-    text-shadow:none!important;
-    transition:background-color .16s ease!important;
+st.html("""<style>
+
+.stApp,[data-testid="stAppViewContainer"]{background:#fff!important}
+[data-testid="stHeader"]{background:transparent!important}
+.block-container{max-width:1210px!important;padding-top:.1rem!important;padding-bottom:.4rem!important}
+.block-container [data-testid="stVerticalBlock"]{gap:.35rem!important}
+.st-key-randomise button,[data-testid="stButton"]>button[kind="primary"],div.stButton>button[kind="primary"]{
+ width:100%!important;max-width:none!important;min-width:0!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ height:94px!important;min-height:94px!important;padding:10px 24px!important;
+ border:2px solid #183c46!important;border-radius:16px!important;
+ color:#fff!important;background:#183c46!important;box-shadow:none!important;
+ font-family:system-ui,-apple-system,Segoe UI,sans-serif!important;
+ font-weight:850!important;font-size:clamp(3rem,5vw,4rem)!important;
+ line-height:1.05!important;text-shadow:none!important
 }
-/* Streamlit renders button labels in nested Markdown <p> tags.
-   Set their size explicitly: styling only the button was leaving tiny text. */
-div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"],
-div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] p,
-div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] span {
-    font-size:clamp(3rem,4.8vw,4rem)!important;
-    line-height:1.05!important;
-    font-weight:800!important;
-    color:#ffffff!important;
-    margin:0!important;
-    padding:0!important;
+.st-key-randomise button p,[data-testid="stButton"]>button[kind="primary"] p,
+div.stButton>button[kind="primary"] p,.st-key-randomise button span{
+ font-size:clamp(3rem,5vw,4rem)!important;font-weight:850!important;
+ color:#fff!important;line-height:1.05!important;margin:0!important
 }
-div.stButton > button[kind="primary"]:hover {
-    background:#285564!important;
-    border-color:#285564!important;
-}
-div.stButton > button[kind="primary"]:active {background:#102f39!important;}
-div.stButton > button[kind="primary"]:focus-visible {outline:3px solid #6d9da8!important;outline-offset:3px;}
+.st-key-randomise button:hover,[data-testid="stButton"]>button[kind="primary"]:hover{background:#285564!important}
+.st-key-map_visual iframe,.st-key-control_footer iframe{display:block;border:0!important}
 @media(max-height:800px) and (min-width:1000px){
-   .stApp iframe {height:418px!important;}
-  .block-container {padding-top:.1rem!important;}
-  div.stButton > button[kind="primary"] {height:88px!important;min-height:88px!important;}
-  div.stButton > button[kind="primary"],
-  div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"],
-  div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] p,
-  div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] span {font-size:3.15rem!important;}
+ .st-key-map_visual iframe{height:418px!important}
+ .st-key-randomise button,[data-testid="stButton"]>button[kind="primary"]{height:88px!important;min-height:88px!important}
+ .st-key-randomise button p,[data-testid="stButton"]>button[kind="primary"] p{font-size:3.3rem!important}
 }
 @media(max-width:720px){
-  div.stButton > button[kind="primary"] {height:82px!important;min-height:82px!important;border-radius:14px!important;}
-  div.stButton > button[kind="primary"],
-  div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"],
-  div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] p,
-  div.stButton > button[kind="primary"] [data-testid="stMarkdownContainer"] span {font-size:2.6rem!important;}
+ .st-key-randomise button,[data-testid="stButton"]>button[kind="primary"]{height:80px!important;min-height:80px!important;border-radius:14px!important}
+ .st-key-randomise button p,[data-testid="stButton"]>button[kind="primary"] p{font-size:2.75rem!important}
 }
-</style>
-"""
-)
+</style>""")
 
 # The countdown replaces the static page heading.
 winner = st.session_state.allocation["intervention"] if st.session_state.allocation else None
@@ -236,12 +184,22 @@ body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background
   <article id="cardB"><strong><i class="swatch" id="swatchB"></i>Study area B</strong><span id="labelB"></span></article>
   <article id="cardIntervention" class="intervention" hidden><strong><i class="swatch" style="background:#7c4f96"></i>Intervention</strong><span id="interventionName"></span></article>
   <article id="cardControl" class="control" hidden><strong><i class="swatch" style="background:#6266ab"></i>Control</strong><span id="controlName"></span></article>
-  <article><strong><i class="swatch" style="background:#156082"></i>Non-study area</strong><span id="labelNon"></span></article>
+  <article><strong><i class="swatch" style="background:#e4313e"></i>Non-study area</strong><span id="labelNon"></span></article>
 </div></div></div></div>
 <script>
 const cfg=APP_CONFIG;
-const initialPurple="#a02b93",initialGreen="#4ea72e",nonStudyBlue="#156082";
+const initialPurple="#a02b93",initialGreen="#4ea72e",nonStudyRed="#e4313e";
 const interventionPurple="#7c4f96",controlBlue="#6266ab";
+// Restore large native button styling even if a separate CSS widget is delayed.
+try {
+ const parentDoc=window.parent.document;
+ if(parentDoc && parentDoc.head && !parentDoc.getElementById('disrupt-page-style')){
+   const sheet=parentDoc.createElement('style');
+   sheet.id='disrupt-page-style';
+   sheet.textContent="\n.stApp,[data-testid=\"stAppViewContainer\"]{background:#fff!important}\n[data-testid=\"stHeader\"]{background:transparent!important}\n.block-container{max-width:1210px!important;padding-top:.1rem!important;padding-bottom:.4rem!important}\n.block-container [data-testid=\"stVerticalBlock\"]{gap:.35rem!important}\n.st-key-randomise button,[data-testid=\"stButton\"]>button[kind=\"primary\"],div.stButton>button[kind=\"primary\"]{\n width:100%!important;max-width:none!important;min-width:0!important;\n display:flex!important;align-items:center!important;justify-content:center!important;\n height:94px!important;min-height:94px!important;padding:10px 24px!important;\n border:2px solid #183c46!important;border-radius:16px!important;\n color:#fff!important;background:#183c46!important;box-shadow:none!important;\n font-family:system-ui,-apple-system,Segoe UI,sans-serif!important;\n font-weight:850!important;font-size:clamp(3rem,5vw,4rem)!important;\n line-height:1.05!important;text-shadow:none!important\n}\n.st-key-randomise button p,[data-testid=\"stButton\"]>button[kind=\"primary\"] p,\ndiv.stButton>button[kind=\"primary\"] p,.st-key-randomise button span{\n font-size:clamp(3rem,5vw,4rem)!important;font-weight:850!important;\n color:#fff!important;line-height:1.05!important;margin:0!important\n}\n.st-key-randomise button:hover,[data-testid=\"stButton\"]>button[kind=\"primary\"]:hover{background:#285564!important}\n.st-key-map_visual iframe,.st-key-control_footer iframe{display:block;border:0!important}\n@media(max-height:800px) and (min-width:1000px){\n .st-key-map_visual iframe{height:418px!important}\n .st-key-randomise button,[data-testid=\"stButton\"]>button[kind=\"primary\"]{height:88px!important;min-height:88px!important}\n .st-key-randomise button p,[data-testid=\"stButton\"]>button[kind=\"primary\"] p{font-size:3.3rem!important}\n}\n@media(max-width:720px){\n .st-key-randomise button,[data-testid=\"stButton\"]>button[kind=\"primary\"]{height:80px!important;min-height:80px!important;border-radius:14px!important}\n .st-key-randomise button p,[data-testid=\"stButton\"]>button[kind=\"primary\"] p{font-size:2.75rem!important}\n}";
+   parentDoc.head.appendChild(sheet);
+ }
+}catch(_error){ /* Streamlit style widget is the fallback. */ }
 const svg=document.getElementById('sites');
 document.getElementById('outline').src=cfg.outline;
 document.getElementById('brand').src=cfg.logo;
@@ -257,10 +215,10 @@ function makePath(d,cls){
   const p=document.createElementNS('http://www.w3.org/2000/svg','path');
   p.setAttribute('d',d);p.setAttribute('class',cls);svg.appendChild(p);return p;
 }
-// Blue background guarantees no uncoloured gaps inside the province.
-const blueBase=makePath(cfg.provincePath,'area-shade');
-blueBase.setAttribute('fill',blendWithWhite(nonStudyBlue,cfg.areaOpacity));
-blueBase.setAttribute('stroke','none');
+// The red non-study base guarantees no uncoloured gaps inside the province.
+const nonStudyBase=makePath(cfg.provincePath,'area-shade');
+nonStudyBase.setAttribute('fill',blendWithWhite(nonStudyRed,cfg.areaOpacity));
+nonStudyBase.setAttribute('stroke','none');
 for(const area of ['A','B']) shaded[area]=makePath(cfg.areaPaths[area],'area-shade');
 const border=makePath(cfg.provincePath,'province-border');
 border.setAttribute('fill','none');border.setAttribute('stroke','#183c46');
@@ -285,12 +243,12 @@ function paint(area,colour,pulse=false){
 }
 function initial(){
   paint('A',initialPurple);paint('B',initialGreen);
-  setFill(groups.non_study,nonStudyBlue);
+  setFill(groups.non_study,nonStudyRed);
   document.getElementById('swatchA').style.background=initialPurple;
   document.getElementById('swatchB').style.background=initialGreen;
   document.getElementById('labelA').textContent=cfg.counts.A+' sites';
   document.getElementById('labelB').textContent=cfg.counts.B+' sites';
-  document.getElementById('labelNon').textContent=cfg.counts.non_study+' blue sites';
+  document.getElementById('labelNon').textContent=cfg.counts.non_study+' red sites';
 }
 function showRoles(){
   document.getElementById('cardA').hidden=true;
@@ -301,7 +259,7 @@ function showRoles(){
 function flash(interventionArea){
   paint('A',interventionArea==='A'?interventionPurple:controlBlue,interventionArea==='A');
   paint('B',interventionArea==='B'?interventionPurple:controlBlue,interventionArea==='B');
-  // Non-study dots and the blue provincial background never change.
+  // Non-study dots and the red provincial background never change.
 }
 function celebrate(){
   if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
@@ -375,37 +333,71 @@ if(cfg.winner){
 }
 </script></body></html>
 """
-components.html(html.replace("APP_CONFIG", config), height=650, scrolling=False)
+with st.container(key="map_visual"):
+    components.html(html.replace("APP_CONFIG", config), height=650, scrolling=False)
 
-# One permanent session-level draw, with the primary CTA underneath the map.
-# Omitting the button after the draw prevents repeat allocations without a reset.
+# The cryptographically secure 50:50 allocation is drawn on the backend
+# exactly once per Streamlit session, when the native button is clicked.
 if st.session_state.allocation is None:
-    if st.button("Randomise", type="primary", use_container_width=True):
-        winner = "A" if secrets.randbelow(2) == 0 else "B"
+    if st.button("Randomise", key="randomise", type="primary", use_container_width=True):
+        selected = "A" if secrets.randbelow(2) == 0 else "B"
         st.session_state.allocation = {
-            "intervention": winner,
-            "control": "B" if winner == "A" else "A",
+            "intervention": selected,
+            "control": "B" if selected == "A" else "A",
             "timestamp_utc": datetime.now(timezone.utc).isoformat(),
             "site_counts": counts,
         }
         st.rerun()
 
-else:
-    # On the post-click rerun, count down 15 to 1 in the former button position.
-    seconds = "".join(
-        f'<span class="countdown-second" style="animation-delay:{15 - n}s">{n}</span>'
+# The countdown and partner logos are rendered in one self-contained HTML
+# iframe, rather than depending on separate Streamlit CSS/HTML elements.
+# This prevents unstyled '151413...' and keeps the logos centered.
+has_allocation = st.session_state.allocation is not None
+countdown_markup = ""
+if has_allocation:
+    numbers = "".join(
+        f'<span class="count-number" style="animation-delay:{15 - n}s">{n}</span>'
         for n in range(15, 0, -1)
     )
-    st.html(
-        f'<div class="randomise-countdown" role="timer" '
-        f'aria-label="15-second countdown">{seconds}</div>',
+    countdown_markup = (
+        f'<div class="countdown" role="timer" aria-label="15 second countdown">'
+        f'{numbers}</div>'
     )
 
-# The footer is present in both states and does not depend on Streamlit's
-# ImageList component (which failed to import on the deployed website).
 partner_png_b64 = asset_base64("disrupt_partners_compact.png")
-st.html(
-    f'<div class="partner-footer"><img '
-    f'src="data:image/png;base64,{partner_png_b64}" '
-    f'alt="DiSrupT RR-TB partner organisations" /></div>',
+footer_html = (
+    """<!DOCTYPE html><html><head><meta charset="utf-8">
+    <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:#fff;overflow:hidden}
+    .footer{display:flex;flex-direction:column;align-items:center;
+            justify-content:flex-start;width:100%;height:100%;gap:2px;padding:0 8px}
+    .countdown{position:relative;width:100%;height:90px;flex:0 0 90px;
+               display:flex;justify-content:center;align-items:center;
+               font-variant-numeric:tabular-nums}
+    .count-number{position:absolute;left:50%;top:50%;opacity:0;line-height:1;
+                  color:#183c46;font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+                  font-size:clamp(70px,7vw,98px);font-weight:900;
+                  animation:tick 1s linear both}
+    @keyframes tick{
+       0%{opacity:1;transform:translate(-50%,-50%) scale(.86)}
+       16%,99.9%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+       100%{opacity:0;transform:translate(-50%,-50%) scale(1)}
+    }
+    .partners{display:block;margin:0 auto;max-width:100%;width:auto;
+              height:auto;max-height:140px;object-fit:contain}
+    @media(prefers-reduced-motion:reduce){
+      .count-number{animation-name:tick-still}
+      @keyframes tick-still{
+        0%,99.9%{opacity:1;transform:translate(-50%,-50%)}
+        100%{opacity:0;transform:translate(-50%,-50%)}
+      }
+    }
+    </style></head><body><div class="footer">"""
+    + countdown_markup
+    + f'<img class="partners" src="data:image/png;base64,{partner_png_b64}" '
+      'alt="DiSrupT RR-TB partner organisations"/>'
+    + "</div></body></html>"
 )
+with st.container(key="control_footer"):
+    components.html(footer_html, height=235 if has_allocation else 145, scrolling=False)
