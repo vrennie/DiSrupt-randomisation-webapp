@@ -355,13 +355,10 @@ if st.session_state.allocation is None:
 has_allocation = st.session_state.allocation is not None
 countdown_markup = ""
 if has_allocation:
-    numbers = "".join(
-        f'<span class="count-number" style="animation-delay:{15 - n}s">{n}</span>'
-        for n in range(15, 0, -1)
-    )
+    # One DOM element, whose text updates once a second. No stacked spans.
     countdown_markup = (
-        f'<div class="countdown" role="timer" aria-label="15 second countdown">'
-        f'{numbers}</div>'
+        '<div class="countdown" role="timer" aria-label="15 second countdown">'
+        '<span id="countdown-value" class="count-number">15</span></div>'
     )
 
 partner_png_b64 = asset_base64("disrupt_partners_compact.png")
@@ -375,29 +372,44 @@ footer_html = (
     .countdown{position:relative;width:100%;height:90px;flex:0 0 90px;
                display:flex;justify-content:center;align-items:center;
                font-variant-numeric:tabular-nums}
-    .count-number{position:absolute;left:50%;top:50%;opacity:0;line-height:1;
+    .count-number{display:block;position:relative;opacity:1;line-height:1;
                   color:#183c46;font-family:system-ui,-apple-system,Segoe UI,sans-serif;
                   font-size:clamp(70px,7vw,98px);font-weight:900;
-                  animation:tick 1s linear forwards}
-    @keyframes tick{
-       0%{opacity:1;transform:translate(-50%,-50%) scale(.86)}
-       16%,99.9%{opacity:1;transform:translate(-50%,-50%) scale(1)}
-       100%{opacity:0;transform:translate(-50%,-50%) scale(1)}
-    }
+                  font-variant-numeric:tabular-nums;min-width:2ch;text-align:center}
     .partners{display:block;margin:0 auto;max-width:100%;width:auto;
               height:auto;max-height:140px;object-fit:contain}
-    @media(prefers-reduced-motion:reduce){
-      .count-number{animation-name:tick-still}
-      @keyframes tick-still{
-        0%,99.9%{opacity:1;transform:translate(-50%,-50%)}
-        100%{opacity:0;transform:translate(-50%,-50%)}
-      }
-    }
+
     </style></head><body><div class="footer">"""
     + countdown_markup
     + f'<img class="partners" src="data:image/png;base64,{partner_png_b64}" '
       'alt="DiSrupT RR-TB partner organisations"/>'
-    + "</div></body></html>"
+    + """</div>
+    <script>
+    (() => {
+      // Drive one visible number from a monotonic clock. Previous numbers
+      // vanish immediately because the same text node is updated in place.
+      const value = document.getElementById('countdown-value');
+      if (!value) return;
+      const startTime = performance.now();
+      let previous = 15;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function frame(now) {
+        const next = Math.max(0, Math.ceil((15000 - (now - startTime)) / 1000));
+        if (next !== previous) {
+          previous = next;
+          value.textContent = next ? String(next) : '';
+          if (next && !reducedMotion && typeof value.animate === 'function') {
+            value.animate([
+              {opacity: 0.7, transform: 'scale(0.86)'},
+              {opacity: 1, transform: 'scale(1)'}
+            ], {duration: 210, easing: 'ease-out'});
+          }
+        }
+        if (next > 0) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    })();
+    </script></body></html>"""
 )
 with st.container(key="control_footer"):
     components.html(footer_html, height=235 if has_allocation else 145, scrolling=False)
